@@ -22,6 +22,10 @@ export interface TraceEvent {
       within_token_limit: boolean;
     };
     replayed?: boolean;
+    isReplay?: boolean;
+    originalSessionId?: string;
+    originalEventId?: string;
+    [key: string]: any; // Allow additional properties
   };
 }
 
