@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TraceEvent } from '@/agent/types';
 import { ReplayProgress } from '@/app/components/ReplayProgress';
+import { formatCost } from '@/app/services/llm-service';
 
 export default function SessionDetail() {
   const params = useParams();
   const router = useRouter();
+  const [session, setSession] = useState<any>(null);
   const [events, setEvents] = useState<TraceEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<TraceEvent | null>(null);
   const [replaying, setReplaying] = useState(false);
@@ -16,24 +18,22 @@ export default function SessionDetail() {
 
   useEffect(() => {
     if (params.id) {
-      // First check sessionStorage for demo data
-      const storedData = sessionStorage.getItem(`session-${params.id}`);
-      if (storedData) {
-        setEvents(JSON.parse(storedData));
-        setLoading(false);
-      } else {
-        // Fallback to API
-        fetch(`/api/sessions/${params.id}`)
-          .then(r => r.json())
-          .then(data => {
-            setEvents(data);
-            setLoading(false);
-          })
-          .catch(error => {
-            console.error('Error loading session:', error);
-            setLoading(false);
-          });
-      }
+      // Fetch from Supabase via API
+      fetch(`/api/sessions/${params.id}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.session) {
+            setSession(data.session);
+            setEvents(data.events || []);
+          } else if (data.error) {
+            console.error('Session not found:', data.error);
+          }
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Error loading session:', error);
+          setLoading(false);
+        });
     }
   }, [params.id]);
 
@@ -111,6 +111,26 @@ export default function SessionDetail() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Session Timeline</h1>
             <p className="text-sm text-gray-600 mt-1">ID: {params.id}</p>
+            {session && (
+              <div className="flex gap-4 mt-2">
+                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                  {session.model}
+                </span>
+                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded">
+                  Temp: {session.temperature}
+                </span>
+                {session.cost && (
+                  <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">
+                    Cost: {formatCost(session.cost)}
+                  </span>
+                )}
+                {session.rating && (
+                  <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
+                    {'⭐'.repeat(session.rating.stars)}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <button

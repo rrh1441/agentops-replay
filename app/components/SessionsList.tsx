@@ -16,8 +16,9 @@ export function SessionsList() {
   const [sessions, setSessions] = useState<Session[]>([]);
   
   useEffect(() => {
-    // Get sessions from sessionStorage for demo
-    const storedSessions: Session[] = [];
+    const loadSessions = () => {
+      // Get sessions from sessionStorage for demo
+      const storedSessions: Session[] = [];
     
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
@@ -41,34 +42,15 @@ export function SessionsList() {
       }
     }
     
-    // Add some mock historical sessions for demo
-    const mockSessions: Session[] = [
-      {
-        id: 'demo-1',
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        status: 'success',
-        eventCount: 5,
-        duration: 2340
-      },
-      {
-        id: 'demo-2',
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        status: 'warning',
-        eventCount: 6,
-        duration: 3120
-      },
-      {
-        id: 'demo-3',
-        timestamp: new Date(Date.now() - 10800000).toISOString(),
-        status: 'success',
-        eventCount: 5,
-        duration: 1890
-      }
-    ];
+      setSessions(storedSessions.sort((a, b) => 
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      ));
+    };
     
-    setSessions([...storedSessions, ...mockSessions].sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    ));
+    loadSessions();
+    // Refresh every second to catch new sessions
+    const interval = setInterval(loadSessions, 1000);
+    return () => clearInterval(interval);
   }, []);
   
   const statusIcons = {

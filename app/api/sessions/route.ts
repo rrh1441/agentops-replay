@@ -1,24 +1,30 @@
 import { NextResponse } from 'next/server';
-import * as fs from 'fs';
-import * as path from 'path';
-import { SessionMetadata } from '@/agent/types';
+import { getSessions } from '@/app/services/supabase-service';
 
 export async function GET() {
   try {
-    const indexPath = path.join(process.cwd(), 'data', 'index.json');
+    const sessions = await getSessions();
     
-    if (!fs.existsSync(indexPath)) {
-      return NextResponse.json([]);
-    }
+    // Transform to match frontend expectations
+    const transformedSessions = sessions.map(session => ({
+      id: session.id,
+      createdAt: session.created_at,
+      fileName: session.file_name,
+      fileHash: session.file_hash,
+      model: session.model,
+      temperature: session.temperature,
+      status: session.status,
+      kpis: session.kpis,
+      valid: session.valid,
+      cost: session.cost,
+      latency: session.latency,
+      inputTokens: session.input_tokens,
+      outputTokens: session.output_tokens,
+      rating: session.rating,
+      parentSessionId: session.parent_session_id
+    }));
     
-    const content = fs.readFileSync(indexPath, 'utf-8');
-    const sessions: SessionMetadata[] = content ? JSON.parse(content) : [];
-    
-    sessions.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-    
-    return NextResponse.json(sessions);
+    return NextResponse.json(transformedSessions);
   } catch (error) {
     console.error('Error fetching sessions:', error);
     return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });

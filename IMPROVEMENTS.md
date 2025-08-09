@@ -1,255 +1,168 @@
-# AgentOps Replay - Improvement Plan
+# AgentOps Replay - Final Implementation Plan
 
-## Priority 1: CSV Upload Feature (Essential for Demo)
+## The Real Story We're Telling
 
-### Implementation Steps
+**"Your AI agents are processing the same data differently - and you might not even know it"**
 
-1. **Add Upload Component** (`app/components/FileUpload.tsx`)
-   ```typescript
-   - Drag-and-drop zone or file picker
-   - Accept .csv files only
-   - Max file size: 10MB
-   - Preview first 5 rows before analysis
-   ```
+We'll demonstrate this by showing:
+1. **Hidden Variance**: Same CSV file produces different results across sessions
+2. **Model Drift**: Your system might be using different models without you knowing
+3. **Non-Determinism Issues**: Temperature settings causing inconsistent outputs
+4. **Cost Surprises**: Some sessions cost 3x more due to model selection
+5. **Validation Failures**: How to catch when AI produces incorrect calculations
 
-2. **Create Upload API** (`app/api/upload/route.ts`)
-   ```typescript
-   - Save uploaded file to data/uploads/
-   - Validate CSV structure
-   - Return file path for analysis
-   ```
+## Implementation Tasks
 
-3. **Update Sessions Page** (`app/sessions/page.tsx`)
-   ```typescript
-   - Add "Upload CSV" button in header
-   - Modal with upload component
-   - "Analyze" button triggers runner with uploaded file
-   ```
+### 1. ✅ Database & API Setup (COMPLETED)
+- Supabase tables created (`logs_sessions`, `logs_events`)
+- OpenAI API key configured
+- Both connections tested and working
 
-4. **Add Sample Selector**
-   ```typescript
-   - Dropdown with pre-loaded examples
-   - "Tesla 10-K", "Apple Quarterly", "Startup P&L"
-   - Load from data/examples/ directory
-   ```
+### 2. 🔄 Create Real LLM Integration Service
+**File: `/app/services/llm-service.ts`**
+- Support multiple models (gpt-3.5-turbo, gpt-5-mini-2025-08-07)
+- Implement rate limiting (10 req/min, 50k tokens/session)
+- Track actual costs per model
+- Store all calls in Supabase
+- Calculate performance rating for each session:
+  ```typescript
+  interface SessionRating {
+    stars: number; // 1-5
+    breakdown: {
+      speed: number; // 1-5 based on latency
+      cost: number; // 1-5 based on relative cost
+      reproducibility: number; // 5 if temp=0, 1 if not
+      accuracy: number; // 5 if validated, 1 if errors
+    };
+    costMultiplier: number; // 1x, 2x, 3x relative to baseline
+    recommendation: string; // "Use GPT-3.5 temp=0 for better performance"
+  }
+  ```
 
-## Priority 2: Real Financial Data Examples
+### 3. 🔄 Update CSV Analysis API
+**File: `/app/api/analyze/route.ts`**
+- **Randomly select model and temperature** (simulating production variance)
+- 50% chance: GPT-3.5-turbo with temperature=0 (deterministic)
+- 30% chance: GPT-3.5-turbo with temperature=0.7 (non-deterministic)
+- 20% chance: GPT-5-mini (advanced but always temperature=1)
+- Actually call OpenAI API with selected config
+- Store session in Supabase with model/temp metadata
+- Return real metrics (tokens, cost, latency)
 
-### Recommended Data Sources
+### 4. 🔄 Create Variance Detection View
+**File: `/app/components/VarianceDetection.tsx`**
+- Automatically detect when same file produces different results
+- Highlight sessions with same input but different outputs
+- Show variance in:
+  - EBITDA calculations (numerical differences)
+  - Model used (GPT-3.5 vs GPT-5)
+  - Temperature settings (deterministic vs non-deterministic)
+  - Cost per session ($0.0005 vs $0.0014)
+  - Processing time (500ms vs 1200ms)
 
-1. **SEC EDGAR Data** (Best Option)
-   - Download 10-K/10-Q financial tables as CSV
-   - Companies to include:
-     - Tesla (TSLA) - 2023 Annual
-     - Microsoft (MSFT) - Latest Quarterly  
-     - Amazon (AMZN) - Latest Annual
-   - Format: Revenue, COGS, OpEx, R&D, Net Income by period
+### 5. 🔄 Update Session Detail View
+**File: `/app/sessions/[id]/page.tsx`**
+- Pull data from Supabase instead of sessionStorage
+- Show real model used
+- Display actual prompt/response
+- Show token breakdown (including reasoning tokens)
+- Calculate and display actual cost
 
-2. **Prepared Examples** (`data/examples/`)
-   ```
-   tesla_2023_10k.csv
-   microsoft_q3_2024.csv
-   amazon_2023_annual.csv
-   startup_saas_monthly.csv
-   ```
+### 6. 🔄 Implement True Replay
+**File: `/app/api/sessions/[id]/replay/route.ts`**
+- For temperature=0: Actually re-run and show identical output
+- For temperature>0: Show variation between runs
+- Store replay sessions in Supabase
+- Link original and replay sessions
 
-3. **Data Structure for 10-K CSV**
-   ```csv
-   Period,Revenue,COGS,OpEx,R&D,SG&A,EBITDA,NetIncome
-   Q1-2023,23329,18818,1843,733,1462,1416,2513
-   Q2-2023,24927,19396,1917,771,1523,1978,2703
-   Q3-2023,23350,18681,1826,895,1576,1606,1853
-   Q4-2023,25167,20289,1862,943,1611,1605,7928
-   ```
+### 7. 🔄 Update Dashboard Stats
+**File: `/app/sessions/page.tsx`**
+- Pull real metrics from Supabase
+- Show average star rating across all sessions
+- Display cost efficiency score (% of optimal)
+- Show speed optimization potential
+- Track reproducibility rate
+- Generate optimization recommendations:
+  - "You could save 65% by using GPT-3.5"
+  - "2.5x speed improvement available"
+  - "67% of sessions non-reproducible for audit"
 
-### Web Research Implementation
-```typescript
-// agent/data-fetcher.ts
-async function fetch10KData(ticker: string, year: number) {
-  // Use SEC API or financial data provider
-  // Parse XBRL data to CSV format
-  // Cache in data/examples/
-}
+### 8. 🔄 Add Demo Scenarios
+**File: `/app/components/DemoScenarios.tsx`**
+Create 3 pre-built demos:
+1. **"Deterministic Analysis"** - GPT-3.5-turbo with temperature=0
+2. **"Advanced Reasoning"** - GPT-5-mini (no temperature control)
+3. **"Cost Comparison"** - Run same data through both models
+
+### 9. 🔄 Error Handling & Edge Cases
+- Rate limit exceeded → Show graceful error
+- API timeout → Fallback to cached response
+- Invalid CSV → Clear error message
+- Token limit exceeded → Truncate intelligently
+
+### 10. 🔄 Final UI Polish
+- Add cost calculator widget
+- Show live token counter during processing
+- Add "Determinism Score" badge
+- Create model recommendation based on use case
+
+## Code Changes Needed
+
+### A. Package Dependencies
+```bash
+npm install @supabase/supabase-js openai p-queue
 ```
 
-## Priority 3: Easy UI/UX Improvements
-
-### 1. **Add Loading States**
-```typescript
-// Show spinner during analysis
-// Progress bar for replay
-// Skeleton loaders for event cards
+### B. Environment Variables (Already Set)
+```
+NEXT_PUBLIC_SUPABASE_URL=✅
+NEXT_PUBLIC_SUPABASE_ANON_KEY=✅
+OPENAI_API_KEY=✅
 ```
 
-### 2. **Enhanced Event Timeline**
-```typescript
-- Add duration bars showing relative time
-- Color code by event type
-- Collapsible event groups
-- Search/filter events
-```
+### C. Key Implementation Files
 
-### 3. **Better Error Display**
-```typescript
-- Toast notifications for errors
-- Detailed error modal with stack trace
-- Retry button for failed analyses
-```
+1. **LLM Service** - Handles all OpenAI calls with proper error handling
+2. **Supabase Service** - Manages all database operations
+3. **Analysis Pipeline** - Orchestrates CSV → LLM → Validation → Storage
+4. **UI Components** - Real-time updates from Supabase
 
-### 4. **Session Comparison**
-```typescript
-- Side-by-side view of two sessions
-- Highlight differences in KPIs
-- Show validation discrepancies
-```
+## The Demo Script (60 seconds)
 
-### 5. **Export Features**
-```typescript
-- Download session as JSON
-- Export timeline as PDF report
-- Copy shareable session link
-```
+1. **"This is AgentOps Replay - see what your AI agents are actually doing"**
+2. **"Let's process this Tesla 10-K three times"** - Upload same CSV 3x
+3. **"Look - same data, different results!"** Show dashboard:
+   - Session 1: GPT-3.5 temp=0, EBITDA: $9.055B ✅
+   - Session 2: GPT-5-mini, EBITDA: $9.244B ❌ (calculation error!)
+   - Session 3: GPT-3.5 temp=0.7, EBITDA: $9.055B ✅ (but different reasoning)
+4. **"Without observability, you'd never know this variance exists"**
+5. Click on Session 2: **"See the exact LLM call that went wrong"**
+   - Show prompt, response, reasoning tokens
+   - Highlight the calculation error
+6. **"Notice the cost difference"** - GPT-5 session cost 3x more but got it wrong!
+7. **"Watch the replay feature"** - Click replay on Session 1
+   - Shows identical results (deterministic)
+8. **"Now replay Session 3"** - Different output despite same input!
+9. Point to stats: **"20% of your sessions are non-deterministic"**
+10. **"This is why you need observability - to catch these issues in production"**
 
-## Priority 4: Technical Improvements
+## Success Criteria
 
-### 1. **Performance Optimizations**
-```typescript
-- Virtual scrolling for long event lists
-- Lazy load event details
-- Index sessions for faster search
-- Compress old JSONL files
-```
+- [ ] Can upload any CSV and process through real OpenAI API
+- [ ] Shows actual model differences (3.5 vs 5-mini)
+- [ ] Demonstrates temperature impact on determinism
+- [ ] All data persisted to Supabase
+- [ ] Replay actually reproduces sessions
+- [ ] Dashboard shows real, calculated metrics
+- [ ] Handles errors gracefully
+- [ ] Costs tracked and displayed accurately
 
-### 2. **Enhanced Validation**
-```typescript
-// Add more financial validations
-- Gross margin checks
-- YoY growth calculations
-- Ratio analysis (current ratio, debt/equity)
-- Anomaly detection
-```
+## Next Steps for Implementation
 
-### 3. **Better Prompt Engineering**
-```typescript
-const ENHANCED_PROMPT = `
-Extract financial KPIs with the following rules:
-1. Sum all revenue lines for total revenue
-2. Include all cost categories in COGS
-3. Separate R&D from general OpEx
-4. Calculate derived metrics (margins, ratios)
-Return structured JSON with units and period.
-`
-```
+1. Start with LLM service - get real API calls working
+2. Wire up Supabase storage for all events
+3. Update UI to pull from Supabase
+4. Add model comparison features
+5. Polish and test error cases
 
-### 4. **Multi-Model Support**
-```typescript
-// Add support for other models
-- Claude 3.5 Sonnet
-- GPT-4o (full)
-- Gemini Pro
-- Local models (Ollama)
-```
-
-### 5. **Batch Processing**
-```typescript
-// Process multiple CSVs at once
-async function batchAnalyze(files: string[]) {
-  return Promise.all(files.map(runAnalysis))
-}
-```
-
-## Priority 5: Demo-Specific Features
-
-### 1. **Demo Mode**
-```typescript
-// Pre-populated with good examples
-// Guided tour with tooltips
-// Auto-replay after 5 seconds
-// Highlight key features
-```
-
-### 2. **Presentation View**
-```typescript
-// Larger fonts
-// Hide technical details
-// Focus on business metrics
-// Full-screen timeline
-```
-
-### 3. **Quick Stats Dashboard**
-```typescript
-// Total sessions analyzed
-// Average processing time
-// Validation success rate
-// Token usage stats
-```
-
-## Implementation Order for Next Developer
-
-1. **First Hour**: CSV Upload UI
-2. **Second Hour**: Real 10-K data integration
-3. **Third Hour**: UI improvements (loading states, better timeline)
-4. **Fourth Hour**: Demo mode and presentation features
-5. **If Time Permits**: Enhanced validations and multi-model support
-
-## Quick Wins (< 15 minutes each)
-
-1. **Add Copy Button** for session IDs
-2. **Timestamp Formatting** - show relative time ("2 minutes ago")
-3. **Keyboard Shortcuts** - 'R' for replay, 'ESC' to close inspector
-4. **Dark Mode Toggle** - respect system preference
-5. **Session Search** - filter by date or status
-6. **Auto-refresh** - poll for new sessions every 5 seconds
-7. **Validation Badge Colors** - green/yellow/red based on score
-8. **Event Count Badge** - show number on session cards
-9. **CSV Preview** - show first few rows in event inspector
-10. **One-Click Demo** - button to run analysis on sample data
-
-## Testing Improvements
-
-### 1. **Add Test Suite**
-```typescript
-// agent/runner.test.ts
-- Test CSV parsing
-- Test validation logic
-- Test replay determinism
-- Mock OpenAI responses
-```
-
-### 2. **E2E Tests**
-```typescript
-// cypress/e2e/replay.cy.ts
-- Upload CSV
-- Verify timeline appears
-- Click replay
-- Confirm new session created
-```
-
-## Notes for Handoff
-
-- The mock runner (`agent/runner-mock.ts`) is perfect for demos without API keys
-- The validation "failure" is intentional - it demonstrates error catching
-- All data is stored locally in `data/sessions/` as JSONL files
-- The UI auto-redirects from `/` to `/sessions`
-- Temperature=0 is critical for determinism claims
-- The replay uses recorded outputs, not re-execution
-
-## MVP for Demo Day
-
-**Must Have:**
-1. CSV upload in UI
-2. 2-3 real company examples
-3. One-click demo button
-4. Clear "100% Deterministic" badge
-
-**Nice to Have:**
-1. Session comparison
-2. Export to PDF
-3. Multi-model support
-4. Batch processing
-
-**Skip for Demo:**
-1. Authentication
-2. Database migration
-3. Production error handling
-4. Comprehensive test suite
+**This creates a legitimate demo showing why AI observability matters - model selection, temperature settings, cost tracking, and determinism are real production concerns that developers face.**

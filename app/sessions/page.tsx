@@ -1,11 +1,94 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { FileUpload } from '@/app/components/FileUpload';
-import { DemoSamples } from '@/app/components/DemoSamples';
+import { DemoScenarios } from '@/app/components/DemoScenarios';
 import { SessionsList } from '@/app/components/SessionsList';
 import { StatCard } from '@/app/components/StatCard';
+import { VarianceDetection } from '@/app/components/VarianceDetection';
+import { CostCalculator } from '@/app/components/CostCalculator';
+import { formatCost } from '@/app/services/llm-service';
 
 export default function SessionsPage() {
+  const [stats, setStats] = useState({
+    totalSessions: 0,
+    avgCost: 0,
+    avgLatency: 0,
+    reproducibilityRate: 0,
+    avgRating: 0,
+    costSavingsPotential: 0,
+    speedImprovementPotential: 0
+  });  
+  const [showVariance, setShowVariance] = useState(false);
+
+  useEffect(() => {
+    loadStats();
+    const interval = setInterval(loadStats, 5000); // Refresh every 5s
+    return () => clearInterval(interval);
+  }, []);
+  
+  async function loadStats() {
+    try {
+      // Get sessions from API (which uses Supabase)
+      const response = await fetch('/api/sessions');
+      const sessions = await response.json();
+      
+      if (sessions.length === 0) {
+        setStats({
+          totalSessions: 0,
+          avgCost: 0,
+          avgLatency: 0,
+          reproducibilityRate: 0,
+          avgRating: 0,
+          costSavingsPotential: 0,
+          speedImprovementPotential: 0
+        });
+        return;
+      }
+      
+      const totalSessions = sessions.length;
+      const completedSessions = sessions.filter((s: any) => s.status === 'completed');
+      
+      // Calculate average cost
+      const totalCost = completedSessions.reduce((sum: number, s: any) => sum + (s.cost || 0), 0);
+      const avgCost = totalCost / completedSessions.length || 0;
+      
+      // Calculate average latency
+      const totalLatency = completedSessions.reduce((sum: number, s: any) => sum + (s.latency || 0), 0);
+      const avgLatency = totalLatency / completedSessions.length || 0;
+      
+      // Calculate reproducibility rate (% with temperature=0)
+      const deterministicSessions = completedSessions.filter((s: any) => s.temperature === 0).length;
+      const reproducibilityRate = (deterministicSessions / completedSessions.length) * 100 || 0;
+      
+      // Calculate average rating
+      const totalRating = completedSessions.reduce((sum: number, s: any) => 
+        sum + (s.rating?.stars || 0), 0
+      );
+      const avgRating = totalRating / completedSessions.length || 0;
+      
+      // Calculate optimization potentials
+      const minCost = Math.min(...completedSessions.map((s: any) => s.cost || Infinity));
+      const costSavingsPotential = avgCost > minCost ? ((avgCost - minCost) / avgCost) * 100 : 0;
+      
+      const minLatency = Math.min(...completedSessions.map((s: any) => s.latency || Infinity));
+      const speedImprovementPotential = avgLatency > minLatency ? 
+        (avgLatency / minLatency - 1) * 100 : 0;
+      
+      setStats({
+        totalSessions,
+        avgCost,
+        avgLatency,
+        reproducibilityRate,
+        avgRating,
+        costSavingsPotential,
+        speedImprovementPotential
+      });
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -25,11 +108,50 @@ export default function SessionsPage() {
           
           {/* Stats Bar */}
           <div className="grid grid-cols-4 gap-4 mt-8">
-            <StatCard label="Total Sessions" value="24" color="blue" />
-            <StatCard label="Success Rate" value="92%" color="green" />
-            <StatCard label="Avg Duration" value="2.3s" color="yellow" />
-            <StatCard label="Compliance" value="100%" color="green" />
+            <StatCard 
+              label="Total Sessions" 
+              value={stats.totalSessions.toString()} 
+              color="blue" 
+            />
+            <StatCard 
+              label="Avg Cost" 
+              value={stats.avgCost > 0 ? formatCost(stats.avgCost) : '$0'} 
+              color={stats.costSavingsPotential > 30 ? "red" : "green"}
+              subtitle={stats.costSavingsPotential > 0 ? 
+                `${stats.costSavingsPotential.toFixed(0)}% savings possible` : undefined}
+            />
+            <StatCard 
+              label="Reproducibility" 
+              value={`${stats.reproducibilityRate.toFixed(0)}%`} 
+              color={stats.reproducibilityRate > 80 ? "green" : stats.reproducibilityRate > 50 ? "yellow" : "red"}
+              subtitle={stats.reproducibilityRate < 100 ? "Use temp=0 for determinism" : "Fully deterministic"}
+            />
+            <StatCard 
+              label="Avg Rating" 
+              value={`${stats.avgRating.toFixed(1)} ⭐`} 
+              color={stats.avgRating >= 4 ? "green" : stats.avgRating >= 3 ? "yellow" : "red"}
+              subtitle={stats.speedImprovementPotential > 0 ? 
+                `${stats.speedImprovementPotential.toFixed(0)}% speed gain available` : undefined}
+            />
           </div>
+          
+          {/* Optimization Recommendations */}
+          {(stats.costSavingsPotential > 20 || stats.speedImprovementPotential > 30) && (
+            <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+              <h3 className="text-sm font-semibold text-yellow-800 mb-2">Optimization Opportunities</h3>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                {stats.costSavingsPotential > 20 && (
+                  <li>• You could save {stats.costSavingsPotential.toFixed(0)}% on costs by using GPT-3.5-turbo consistently</li>
+                )}
+                {stats.speedImprovementPotential > 30 && (
+                  <li>• {(stats.speedImprovementPotential / 100 + 1).toFixed(1)}x speed improvement available with optimized models</li>
+                )}
+                {stats.reproducibilityRate < 80 && (
+                  <li>• {(100 - stats.reproducibilityRate).toFixed(0)}% of sessions are non-deterministic - consider using temperature=0</li>
+                )}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
       
@@ -40,15 +162,41 @@ export default function SessionsPage() {
           <FileUpload />
           
           <div className="mt-8">
-            <h3 className="text-lg font-medium mb-4">Or Try a Demo</h3>
-            <DemoSamples />
+            <h3 className="text-lg font-medium mb-4">Demo Scenarios</h3>
+            <DemoScenarios />
           </div>
         </div>
         
-        {/* Recent Sessions */}
-        <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Sessions</h2>
-          <SessionsList />
+        {/* Variance Detection Toggle */}
+        <div className="mt-8">
+          <button
+            onClick={() => setShowVariance(!showVariance)}
+            className="px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-2"
+          >
+            <span>⚠️</span>
+            <span>{showVariance ? 'Hide' : 'Show'} Variance Detection</span>
+          </button>
+        </div>
+        
+        {/* Variance Detection Section */}
+        {showVariance && (
+          <div className="mt-4 bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Variance Detection</h2>
+            <VarianceDetection />
+          </div>
+        )}
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+          {/* Recent Sessions */}
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Recent Sessions</h2>
+            <SessionsList />
+          </div>
+          
+          {/* Cost Calculator */}
+          <div className="lg:col-span-1">
+            <CostCalculator />
+          </div>
         </div>
       </div>
     </div>
