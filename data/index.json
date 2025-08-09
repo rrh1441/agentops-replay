@@ -1,0 +1,54 @@
+[
+  {
+    "sessionId": "97de59e1-29df-4727-8fb4-202c37f91f6b",
+    "createdAt": "2025-08-09T18:20:00.409Z",
+    "isReplay": false,
+    "status": "completed",
+    "eventCount": 8
+  },
+  {
+    "sessionId": "a90aa48e-e702-4cb7-bfec-5ff028459bc3",
+    "createdAt": "2025-08-09T18:22:43.177Z",
+    "isReplay": false,
+    "status": "failed",
+    "eventCount": 5
+  },
+  {
+    "sessionId": "96ce87e5-645c-49f7-ae2e-f62d8b8d62b2",
+    "createdAt": "2025-08-09T18:23:01.206Z",
+    "isReplay": false,
+    "status": "completed",
+    "eventCount": 8
+  },
+  {
+    "sessionId": "b6b9646e-1e60-4de0-9f1c-24afd3b31e1c",
+    "createdAt": "2025-08-09T18:23:12.402Z",
+    "isReplay": false,
+    "status": "completed",
+    "eventCount": 8
+  },
+  {
+    "sessionId": "b6b9646e-1e60-4de0-9f1c-24afd3b31e1c-replay-1754763820448",
+    "createdAt": "2025-08-09T18:23:40.448Z",
+    "isReplay": true,
+    "originalSessionId": "b6b9646e-1e60-4de0-9f1c-24afd3b31e1c",
+    "status": "completed",
+    "eventCount": 8
+  },
+  {
+    "sessionId": "b6b9646e-1e60-4de0-9f1c-24afd3b31e1c-replay-1754763820448-replay-1754763873742",
+    "createdAt": "2025-08-09T18:24:33.742Z",
+    "isReplay": true,
+    "originalSessionId": "b6b9646e-1e60-4de0-9f1c-24afd3b31e1c",
+    "status": "completed",
+    "eventCount": 8
+  },
+  {
+    "sessionId": "a90aa48e-e702-4cb7-bfec-5ff028459bc3-replay-1754763894136",
+    "createdAt": "2025-08-09T18:24:54.136Z",
+    "isReplay": true,
+    "originalSessionId": "a90aa48e-e702-4cb7-bfec-5ff028459bc3",
+    "status": "completed",
+    "eventCount": 5
+  }
+]
