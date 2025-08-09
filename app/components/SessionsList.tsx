@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { TraceEvent } from '@/agent/types';
 
 interface Session {
   id: string;
@@ -25,7 +26,7 @@ export function SessionsList() {
         const events = JSON.parse(sessionStorage.getItem(key) || '[]');
         
         if (events.length > 0) {
-          const hasValidationIssue = events.some((e: any) => 
+          const hasValidationIssue = events.some((e: TraceEvent) => 
             e.type === 'validation' && e.output?.valid === false
           );
           

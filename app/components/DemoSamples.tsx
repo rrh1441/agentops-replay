@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { TraceEvent } from '@/agent/types';
 
 const DEMO_SAMPLES = [
   { id: 'tesla-2024', name: 'Tesla 10-K', icon: '🚗' },
@@ -9,7 +10,7 @@ const DEMO_SAMPLES = [
 ];
 
 // Pre-computed demo data
-const PRECOMPUTED_DEMOS: Record<string, any[]> = {
+const PRECOMPUTED_DEMOS: Record<string, TraceEvent[]> = {
   'tesla-2024': [
     {
       sessionId: 'tesla-2024',
@@ -51,7 +52,7 @@ const PRECOMPUTED_DEMOS: Record<string, any[]> = {
         }
       },
       metadata: {
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-mini-2025-08-07',
         temperature: 0,
         tokens: { input: 1250, output: 340 },
         duration_ms: 2140,
@@ -143,7 +144,7 @@ const PRECOMPUTED_DEMOS: Record<string, any[]> = {
         }
       },
       metadata: {
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-mini-2025-08-07',
         temperature: 0,
         tokens: { input: 980, output: 290 },
         duration_ms: 1890,
@@ -236,7 +237,7 @@ const PRECOMPUTED_DEMOS: Record<string, any[]> = {
         runway_months: 18
       },
       metadata: {
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-mini-2025-08-07',
         temperature: 0,
         tokens: { input: 620, output: 180 },
         duration_ms: 1120,

@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // For demo, create a simple replay by copying the session with a new ID
-    const replaySessionId = `${params.id}-replay-${Date.now()}`;
+    const { id } = await params;
+    const replaySessionId = `${id}-replay-${Date.now()}`;
     
     // In a real implementation, this would trigger the actual replay logic
     // For demo purposes, we'll return success immediately

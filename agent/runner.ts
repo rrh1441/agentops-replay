@@ -40,7 +40,7 @@ export async function runAnalysis(csvPath: string, sessionId?: string): Promise<
     const prompt = EXTRACTION_PROMPT.replace('{{DATA}}', JSON.stringify(records.slice(0, 5)));
     
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-5-mini-2025-08-07',
       temperature: 0,
       messages: [{
         role: 'user',
@@ -52,7 +52,7 @@ export async function runAnalysis(csvPath: string, sessionId?: string): Promise<
     const kpis = JSON.parse(completion.choices[0].message.content || '{}') as KPIResult;
     
     logger.endSpan(llmEvent, kpis, {
-      model: 'gpt-4o-mini',
+      model: 'gpt-5-mini-2025-08-07',
       temperature: 0,
       tokens: completion.usage ? {
         input: completion.usage.prompt_tokens,

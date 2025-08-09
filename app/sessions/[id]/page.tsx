@@ -65,7 +65,7 @@ export default function SessionDetail() {
           const currentEvents = sessionStorage.getItem(`session-${params.id}`);
           if (currentEvents) {
             // Add replay markers to events
-            const replayEvents = JSON.parse(currentEvents).map((e: any) => ({
+            const replayEvents = JSON.parse(currentEvents).map((e: TraceEvent) => ({
               ...e,
               sessionId: data.replaySessionId,
               metadata: {
@@ -87,7 +87,7 @@ export default function SessionDetail() {
     }
   };
 
-  const calculateComplianceScore = (compliance?: any) => {
+  const calculateComplianceScore = (compliance?: Record<string, boolean>) => {
     if (!compliance) return 0;
     const checks = Object.values(compliance).filter(Boolean).length;
     const total = Object.keys(compliance).length;
@@ -169,7 +169,7 @@ function EventCard({
   event: TraceEvent; 
   onClick: () => void;
   isSelected: boolean;
-  calculateScore: (compliance?: any) => number;
+  calculateScore: (compliance?: Record<string, boolean>) => number;
 }) {
   const icons: Record<string, string> = {
     start: '🚀',

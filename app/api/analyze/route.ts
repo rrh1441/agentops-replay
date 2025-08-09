@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
     
     const content = await file.text();
-    const records = parse(content, { columns: true });
+    const records = parse(content, { columns: true }) as Record<string, unknown>[];
     const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
     // Calculate KPIs from the CSV data
@@ -23,9 +23,9 @@ export async function POST(request: Request) {
     let opex = 0;
     
     // Try to extract financial data from common column names
-    records.forEach((record: any) => {
+    records.forEach((record: Record<string, unknown>) => {
       // Handle both regular numbers and formatted strings (e.g., "119,575,000,000")
-      const parseNumber = (val: any) => {
+      const parseNumber = (val: unknown) => {
         if (!val) return 0;
         const str = String(val).replace(/,/g, '');
         return parseFloat(str) || 0;
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
           margin: revenue > 0 ? ((ebitda / revenue) * 100).toFixed(2) + '%' : '0%'
         },
         metadata: {
-          model: 'gpt-4o-mini',
+          model: 'gpt-5-mini-2025-08-07',
           temperature: 0,
           tokens: { input: 450, output: 120 },
           duration_ms: 1250,

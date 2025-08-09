@@ -5,10 +5,11 @@ import { TraceEvent } from '@/agent/types';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const sessionFile = path.join(process.cwd(), 'data', 'sessions', `${params.id}.jsonl`);
+    const { id } = await params;
+    const sessionFile = path.join(process.cwd(), 'data', 'sessions', `${id}.jsonl`);
     
     if (!fs.existsSync(sessionFile)) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
