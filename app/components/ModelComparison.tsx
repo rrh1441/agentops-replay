@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface ModelComparisonResult {
   sessionId: string;
@@ -140,7 +140,7 @@ export function ModelComparison() {
           </div>
 
           <div className="grid gap-4">
-            {comparisonData.sessions.map((session, index) => (
+            {comparisonData.sessions.map((session) => (
               <div 
                 key={session.sessionId} 
                 className={`p-4 rounded-lg border-2 ${

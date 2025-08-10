@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface ProductionMetrics {
   selectedModel: string;
@@ -14,7 +14,7 @@ interface ProductionMetrics {
 }
 
 export function MonitorAgent() {
-  const [metrics, setMetrics] = useState<ProductionMetrics>({
+  const [metrics] = useState<ProductionMetrics>({
     selectedModel: 'gpt-4o-mini',
     accuracy: 99.2,
     uptime: 99.8,
@@ -24,7 +24,7 @@ export function MonitorAgent() {
     errorsToday: 2,
   });
 
-  const [alerts, setAlerts] = useState([
+  const [alerts] = useState([
     {
       id: 1,
       type: 'warning',
@@ -110,7 +110,7 @@ export function MonitorAgent() {
 
       {/* Daily Stats */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="font-semibold mb-3">Today's Activity</h3>
+        <h3 className="font-semibold mb-3">Today&apos;s Activity</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span className="text-gray-600">Requests:</span>

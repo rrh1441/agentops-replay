@@ -64,13 +64,11 @@ const DATA_SOURCES = [
 ];
 
 export function TestAgent() {
-  const [selectedDataSource, setSelectedDataSource] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<ComparisonResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const runAgentTest = async (filename: string) => {
     setIsLoading(true);
-    setSelectedDataSource(filename);
     
     try {
       const response = await fetch(`/${filename}`);
@@ -242,7 +240,6 @@ export function TestAgent() {
             <button
               onClick={() => {
                 setTestResults(null);
-                setSelectedDataSource(null);
               }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
