@@ -62,13 +62,6 @@ export const MODELS: Record<string, ModelConfig> = {
     costPer1kInput: 0.00015,  // $0.15 per 1M tokens
     costPer1kOutput: 0.0006,  // $0.60 per 1M tokens
   },
-  'o3': {
-    model: 'o3',
-    temperature: 0,
-    maxTokens: 4096,
-    costPer1kInput: 0.002,    // $2.00 per 1M tokens
-    costPer1kOutput: 0.008,   // $8.00 per 1M tokens
-  },
 };
 
 export interface LLMResponse {
@@ -266,8 +259,6 @@ export function calculateSessionRating(
 }
 
 export function formatCost(cost: number): string {
-  if (cost < 0.001) {
-    return `$${(cost * 1000000).toFixed(2)}/million`; // Show per million tokens
-  }
-  return `$${cost.toFixed(4)}`;
+  // ALWAYS show cost per million tokens for consistency
+  return `$${(cost * 1000000).toFixed(2)}/million`;
 }

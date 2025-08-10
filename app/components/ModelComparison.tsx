@@ -71,13 +71,11 @@ export function ModelComparison() {
     if (model === 'gpt-4o') return 'GPT-4o';
     if (model === 'gpt-4o-mini') return 'GPT-4o Mini';
     if (model === 'gpt-4o-mini-creative') return 'GPT-4o Mini (T=0.7)';
-    if (model === 'o3') return 'O3';
     return model;
   };
 
   const getModelColor = (model: string) => {
-    if (model === 'o3') return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (model === 'gpt-4.1') return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (model === 'gpt-4.1') return 'bg-purple-100 text-purple-800 border-purple-200';
     if (model === 'gpt-4.1-mini') return 'bg-cyan-100 text-cyan-800 border-cyan-200';
     if (model === 'gpt-4o') return 'bg-indigo-100 text-indigo-800 border-indigo-200';
     if (model === 'gpt-4o-mini-creative') return 'bg-orange-100 text-orange-800 border-orange-200';
