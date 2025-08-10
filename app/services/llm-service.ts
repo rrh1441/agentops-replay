@@ -62,13 +62,6 @@ export const MODELS: Record<string, ModelConfig> = {
     costPer1kInput: 0.00015,  // $0.15 per 1M tokens
     costPer1kOutput: 0.0006,  // $0.60 per 1M tokens
   },
-  'o3-mini': {
-    model: 'o3-mini',         // Using o3-mini as it's more likely to be available
-    temperature: 0,
-    maxTokens: 4096,
-    costPer1kInput: 0.0011,   // $1.10 per 1M tokens (from pricing doc)
-    costPer1kOutput: 0.0044,  // $4.40 per 1M tokens
-  },
 };
 
 export interface LLMResponse {
@@ -267,5 +260,78 @@ export function calculateSessionRating(
 
 export function formatCost(cost: number): string {
   // ALWAYS show cost per million tokens for consistency
-  return `$${(cost * 1000000).toFixed(2)}/million`;
+  return `$${(cost * 1000000).toFixed(2)} per million tokens`;
+}
+
+export function recommendModel(sessions: any[]): {
+  model: string;
+  reason: string;
+  score: number;
+} {
+  // Calculate average metrics for each model
+  const modelStats: Record<string, any> = {};
+  
+  sessions.forEach(session => {
+    if (!session.success) return;
+    
+    const model = session.model;
+    if (!modelStats[model]) {
+      modelStats[model] = {
+        count: 0,
+        totalCost: 0,
+        totalLatency: 0,
+        totalRating: 0,
+        hasErrors: false
+      };
+    }
+    
+    modelStats[model].count++;
+    modelStats[model].totalCost += session.cost || 0;
+    modelStats[model].totalLatency += session.latency || 0;
+    modelStats[model].totalRating += session.rating || 0;
+    if (session.error) modelStats[model].hasErrors = true;
+  });
+  
+  // Score each model (accuracy: 50%, price: 25%, speed: 25%)
+  let bestModel = 'gpt-4o-mini';
+  let bestScore = 0;
+  let bestReason = '';
+  
+  Object.entries(modelStats).forEach(([model, stats]) => {
+    const avgCost = stats.totalCost / stats.count;
+    const avgLatency = stats.totalLatency / stats.count;
+    const avgRating = stats.totalRating / stats.count;
+    
+    // Normalize scores (0-100)
+    const accuracyScore = (avgRating / 5) * 100;
+    const costScore = Math.max(0, 100 - (avgCost * 10000)); // Lower cost = higher score
+    const speedScore = Math.max(0, 100 - (avgLatency / 50)); // Lower latency = higher score
+    
+    // Weighted total: accuracy 50%, cost 25%, speed 25%
+    const totalScore = (accuracyScore * 0.5) + (costScore * 0.25) + (speedScore * 0.25);
+    
+    if (totalScore > bestScore) {
+      bestScore = totalScore;
+      bestModel = model;
+      
+      // Generate reason
+      if (avgCost < 0.0002 && avgRating >= 4) {
+        bestReason = 'Best balance of accuracy and cost-efficiency';
+      } else if (avgRating >= 4.5) {
+        bestReason = 'Highest accuracy for critical applications';
+      } else if (avgCost < 0.0001) {
+        bestReason = 'Most cost-effective for high-volume usage';
+      } else if (avgLatency < 1000) {
+        bestReason = 'Fastest response times for real-time applications';
+      } else {
+        bestReason = 'Optimal balance across all metrics';
+      }
+    }
+  });
+  
+  return {
+    model: bestModel,
+    reason: bestReason,
+    score: Math.round(bestScore)
+  };
 }

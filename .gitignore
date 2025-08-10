@@ -40,5 +40,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# submission (private)
+# Internal documentation and testing
+CLAUDE.md
+HANDOFF.md
 submission.md
+guidelines.md
+/data/sessions/
+*.jsonl
+
+# Backup and temp files
+*.backup
+*.tmp
+*~

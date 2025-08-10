@@ -30,6 +30,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const modelsParam = formData.get('models') as string;
     
     if (!file) {
       return NextResponse.json(
@@ -41,8 +42,9 @@ export async function POST(request: Request) {
     const content = await file.text();
     const records = parse(content, { columns: true }) as Record<string, unknown>[];
     
-    // Get ALL models to run comparison
-    const allModels = getAllModelKeys();
+    // Use selected models if provided, otherwise use all models
+    const selectedModels = modelsParam ? JSON.parse(modelsParam) : null;
+    const allModels = selectedModels || getAllModelKeys();
     
     // Run analysis for each model in parallel
     const analysisPromises = allModels.map(async (modelKey) => {

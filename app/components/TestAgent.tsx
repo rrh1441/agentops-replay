@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { recommendModel } from '@/app/services/llm-service';
 
 interface AgentTestResult {
   sessionId: string;
@@ -47,17 +48,35 @@ interface ComparisonResult {
 export function TestAgent() {
   const [testResults, setTestResults] = useState<ComparisonResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedDataSource, setSelectedDataSource] = useState<string | null>(null);
+  const [selectedModels, setSelectedModels] = useState<string[]>(['gpt-4o-mini', 'gpt-4o-mini-creative', 'gpt-4.1-mini', 'gpt-4.1', 'gpt-4o']);
 
-  const runAgentTest = async (filename: string) => {
+  const runAgentTest = async () => {
+    if (!selectedDataSource) return;
+    
     setIsLoading(true);
     
     try {
-      const response = await fetch(`/${filename}`);
-      const blob = await response.blob();
-      const file = new File([blob], filename, { type: 'text/csv' });
+      let file: File;
+      
+      if (selectedDataSource.startsWith('custom:')) {
+        // Use the uploaded custom file
+        file = (window as any).__customFile;
+        if (!file) {
+          alert('Please select a file first');
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        // Fetch the pre-defined file
+        const response = await fetch(`/${selectedDataSource}`);
+        const blob = await response.blob();
+        file = new File([blob], selectedDataSource, { type: 'text/csv' });
+      }
       
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('models', JSON.stringify(selectedModels));
       
       const analysisResponse = await fetch('/api/analyze', {
         method: 'POST',
@@ -117,13 +136,11 @@ export function TestAgent() {
     if (model === 'gpt-4o') return 'GPT-4o';
     if (model === 'gpt-4o-mini') return 'GPT-4o Mini';
     if (model === 'gpt-4o-mini-creative') return 'GPT-4o Mini (T=0.7)';
-    if (model === 'o3-mini') return 'O3 Mini';
     return model;
   };
 
   const getModelColor = (model: string) => {
-    if (model === 'o3-mini') return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (model === 'gpt-4.1') return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (model === 'gpt-4.1') return 'bg-purple-100 text-purple-800 border-purple-200';
     if (model === 'gpt-4.1-mini') return 'bg-cyan-100 text-cyan-800 border-cyan-200';
     if (model === 'gpt-4o') return 'bg-indigo-100 text-indigo-800 border-indigo-200';
     if (model === 'gpt-4o-mini-creative') return 'bg-orange-100 text-orange-800 border-orange-200';
@@ -134,7 +151,7 @@ export function TestAgent() {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       {/* Header */}
-      <h2 className="text-2xl font-bold mb-6">🧪 Agent Testing Ground</h2>
+      <h2 className="text-2xl font-bold mb-6">Agent Testing Ground</h2>
       
       {/* Agent Configuration Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -156,12 +173,16 @@ export function TestAgent() {
       {!testResults && (
         <div>
           <h3 className="text-lg font-medium mb-4">Select Data Source</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mb-6">
             {/* Tesla */}
             <button
-              onClick={() => runAgentTest('tesla_10k_2024.csv')}
+              onClick={() => setSelectedDataSource('tesla_10k_2024.csv')}
               disabled={isLoading}
-              className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+              className={`p-6 border-2 rounded-lg transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group ${
+                selectedDataSource === 'tesla_10k_2024.csv' 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
+              }`
             >
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-3xl group-hover:scale-110 transition-transform">🚗</span>
@@ -172,9 +193,13 @@ export function TestAgent() {
             
             {/* Microsoft */}
             <button
-              onClick={() => runAgentTest('microsoft_10k_2024.csv')}
+              onClick={() => setSelectedDataSource('microsoft_10k_2024.csv')}
               disabled={isLoading}
-              className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+              className={`p-6 border-2 rounded-lg transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group ${
+                selectedDataSource === 'microsoft_10k_2024.csv' 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
+              }`
             >
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-3xl group-hover:scale-110 transition-transform">💻</span>
@@ -185,9 +210,13 @@ export function TestAgent() {
             
             {/* Amazon (Apple) */}
             <button
-              onClick={() => runAgentTest('apple_10k_2024.csv')}
+              onClick={() => setSelectedDataSource('apple_10k_2024.csv')}
               disabled={isLoading}
-              className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+              className={`p-6 border-2 rounded-lg transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group ${
+                selectedDataSource === 'apple_10k_2024.csv' 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
+              }`
             >
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-3xl group-hover:scale-110 transition-transform">📦</span>
@@ -197,7 +226,11 @@ export function TestAgent() {
             </button>
             
             {/* Upload Custom */}
-            <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-all">
+            <div className={`p-6 border-2 border-dashed rounded-lg transition-all ${
+              selectedDataSource?.startsWith('custom:')
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-300 hover:border-gray-400'
+            }`}>
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-3xl">📎</span>
                 <h4 className="font-bold text-lg text-gray-900">Upload CSV</h4>
@@ -210,23 +243,58 @@ export function TestAgent() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const formData = new FormData();
-                      formData.append('file', file);
-                      setIsLoading(true);
-                      fetch('/api/analyze', { method: 'POST', body: formData })
-                        .then(r => r.json())
-                        .then(result => {
-                          const validationResult = performCrossModelValidation(result.sessions);
-                          result.crossModelValidation = validationResult;
-                          setTestResults(result);
-                        })
-                        .finally(() => setIsLoading(false));
+                      // Store the file for later use when Run Test is clicked
+                      setSelectedDataSource('custom:' + file.name);
+                      // Store file in a way we can access it later
+                      (window as any).__customFile = file;
                     }
                   }}
                   className="hidden"
                 />
               </label>
             </div>
+          </div>
+          
+          {/* Model Selection */}
+          <h3 className="text-lg font-medium mb-4 mt-6">Select Models</h3>
+          <div className="flex flex-wrap gap-3 mb-6">
+            {[
+              { key: 'gpt-4o-mini', label: 'GPT-4o Mini (T=0)', color: 'bg-green-100 text-green-800 border-green-300' },
+              { key: 'gpt-4o-mini-creative', label: 'GPT-4o Mini (T=0.7)', color: 'bg-orange-100 text-orange-800 border-orange-300' },
+              { key: 'gpt-4.1-mini', label: 'GPT-4.1 Mini', color: 'bg-cyan-100 text-cyan-800 border-cyan-300' },
+              { key: 'gpt-4.1', label: 'GPT-4.1', color: 'bg-purple-100 text-purple-800 border-purple-300' },
+              { key: 'gpt-4o', label: 'GPT-4o', color: 'bg-indigo-100 text-indigo-800 border-indigo-300' }
+            ].map(model => (
+              <button
+                key={model.key}
+                onClick={() => {
+                  setSelectedModels(prev => 
+                    prev.includes(model.key) 
+                      ? prev.filter(m => m !== model.key)
+                      : [...prev, model.key]
+                  );
+                }}
+                className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                  selectedModels.includes(model.key) 
+                    ? model.color + ' border-2' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                {selectedModels.includes(model.key) && <span className="mr-2">✓</span>}
+                {model.label}
+              </button>
+            ))}
+          </div>
+          
+          {/* Run Test Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={runAgentTest}
+              disabled={isLoading || !selectedDataSource || selectedModels.length === 0}
+              className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoading ? 'Running Test...' : 'Run Test'}
+            </button>
           </div>
         </div>
       )}
@@ -236,7 +304,7 @@ export function TestAgent() {
         <div className="text-center py-8">
           <div className="animate-spin text-4xl mb-4">🔄</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Testing Agent Across All Models</h3>
-          <p className="text-gray-600">Running GPT-4.1, GPT-4o, and O3 Mini models...</p>
+          <p className="text-gray-600">Running GPT-4.1, GPT-4o, and GPT-4o Mini models...</p>
         </div>
       )}
 

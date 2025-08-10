@@ -118,52 +118,6 @@ export default function SessionsPage() {
             </div>
           </div>
           
-          {/* Stats Bar */}
-          <div className="grid grid-cols-4 gap-4 mt-8">
-            <StatCard 
-              label="Total Sessions" 
-              value={stats.totalSessions.toString()} 
-              color="blue" 
-            />
-            <StatCard 
-              label="Avg Cost" 
-              value={stats.avgCost > 0 ? formatCost(stats.avgCost) : '$0'} 
-              color={stats.costSavingsPotential > 30 ? "red" : "green"}
-              subtitle={stats.costSavingsPotential > 0 ? 
-                `${stats.costSavingsPotential.toFixed(0)}% savings possible` : undefined}
-            />
-            <StatCard 
-              label="Reproducibility" 
-              value={`${stats.reproducibilityRate.toFixed(0)}%`} 
-              color={stats.reproducibilityRate > 80 ? "green" : stats.reproducibilityRate > 50 ? "yellow" : "red"}
-              subtitle={stats.reproducibilityRate < 100 ? "Use temp=0 for determinism" : "Fully deterministic"}
-            />
-            <StatCard 
-              label="Avg Rating" 
-              value={`${stats.avgRating.toFixed(1)} ⭐`} 
-              color={stats.avgRating >= 4 ? "green" : stats.avgRating >= 3 ? "yellow" : "red"}
-              subtitle={stats.speedImprovementPotential > 0 ? 
-                `${stats.speedImprovementPotential.toFixed(0)}% speed gain available` : undefined}
-            />
-          </div>
-          
-          {/* Optimization Recommendations */}
-          {(stats.costSavingsPotential > 20 || stats.speedImprovementPotential > 30) && (
-            <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
-              <h3 className="text-sm font-semibold text-yellow-800 mb-2">Optimization Opportunities</h3>
-              <ul className="text-sm text-yellow-700 space-y-1">
-                {stats.costSavingsPotential > 20 && (
-                  <li>• You could save {stats.costSavingsPotential.toFixed(0)}% on costs by using GPT-3.5-turbo consistently</li>
-                )}
-                {stats.speedImprovementPotential > 30 && (
-                  <li>• {(stats.speedImprovementPotential / 100 + 1).toFixed(1)}x speed improvement available with optimized models</li>
-                )}
-                {stats.reproducibilityRate < 80 && (
-                  <li>• {(100 - stats.reproducibilityRate).toFixed(0)}% of sessions are non-deterministic - consider using temperature=0</li>
-                )}
-              </ul>
-            </div>
-          )}
         </div>
       </div>
       
@@ -179,54 +133,6 @@ export default function SessionsPage() {
           <MonitorAgent />
         </div>
         
-        {/* Advanced Features */}
-        <div className="mt-12 border-t pt-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Advanced Features</h2>
-          
-          {/* Legacy Tools */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Legacy Upload */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-2">Legacy CSV Upload</h3>
-              <p className="text-gray-600 text-sm mb-4">Direct file upload for custom data sources</p>
-              <FileUpload />
-              
-              <div className="mt-6">
-                <h4 className="text-md font-medium mb-3">Demo Scenarios</h4>
-                <DemoScenarios />
-              </div>
-            </div>
-            
-            {/* Cost Calculator */}
-            <div>
-              <CostCalculator />
-            </div>
-          </div>
-          
-          {/* Variance Detection */}
-          <div className="mb-8">
-            <button
-              onClick={() => setShowVariance(!showVariance)}
-              className="px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-2 mb-4"
-            >
-              <span>⚠️</span>
-              <span>{showVariance ? 'Hide' : 'Show'} Variance Detection</span>
-            </button>
-            
-            {showVariance && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-xl font-semibold mb-4">Variance Detection</h3>
-                <VarianceDetection />
-              </div>
-            )}
-          </div>
-          
-          {/* Recent Sessions */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-xl font-semibold mb-4">Recent Sessions</h3>
-            <SessionsList />
-          </div>
-        </div>
       </div>
     </div>
   );

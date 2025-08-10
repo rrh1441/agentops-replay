@@ -47,7 +47,6 @@ export function CostCalculator() {
             <option value="gpt-4o-mini">GPT-4o Mini (Cheapest)</option>
             <option value="gpt-4o-mini-creative">GPT-4o Mini (Creative T=0.7)</option>
             <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
-            <option value="o3-mini">O3 Mini</option>
             <option value="gpt-4.1">GPT-4.1</option>
             <option value="gpt-4o">GPT-4o</option>
           </select>

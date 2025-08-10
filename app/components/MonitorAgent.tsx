@@ -137,49 +137,6 @@ export function MonitorAgent() {
         </div>
       </div>
 
-      {/* Alerts & Issues */}
-      <div className="mb-6">
-        <h3 className="font-semibold mb-3">Alerts & Issues</h3>
-        <div className="space-y-2">
-          {alerts.map((alert) => (
-            <div 
-              key={alert.id}
-              className={`p-3 rounded-lg border-l-4 ${
-                alert.type === 'error' ? 'border-red-400 bg-red-50' :
-                alert.type === 'warning' ? 'border-yellow-400 bg-yellow-50' :
-                'border-blue-400 bg-blue-50'
-              } ${alert.resolved ? 'opacity-60' : ''}`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{getAlertIcon(alert.type)}</span>
-                  <span className={`text-sm ${alert.resolved ? 'line-through' : ''}`}>
-                    {alert.message}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>{alert.timestamp}</span>
-                  {alert.resolved && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded">Resolved</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Performance Chart Placeholder */}
-      <div className="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
-        <h3 className="font-semibold mb-3">Performance Trends</h3>
-        <div className="flex items-center justify-center h-32 text-gray-500">
-          <div className="text-center">
-            <div className="text-4xl mb-2">📊</div>
-            <div className="text-sm">Performance charts coming soon</div>
-            <div className="text-xs text-gray-400">Latency, cost, and accuracy trends</div>
-          </div>
-        </div>
-      </div>
 
       {/* Quick Actions */}
       <div className="border-t pt-4">
