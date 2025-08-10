@@ -62,6 +62,13 @@ export const MODELS: Record<string, ModelConfig> = {
     costPer1kInput: 0.00015,  // $0.15 per 1M tokens
     costPer1kOutput: 0.0006,  // $0.60 per 1M tokens
   },
+  'o3-mini': {
+    model: 'o3-mini',         // Using o3-mini as it's more likely to be available
+    temperature: 0,
+    maxTokens: 4096,
+    costPer1kInput: 0.0011,   // $1.10 per 1M tokens (from pricing doc)
+    costPer1kOutput: 0.0044,  // $4.40 per 1M tokens
+  },
 };
 
 export interface LLMResponse {
