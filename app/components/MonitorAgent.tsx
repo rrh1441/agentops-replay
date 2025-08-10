@@ -131,7 +131,7 @@ export function MonitorAgent() {
           <div>
             <span className="text-gray-600">Avg Cost/Request:</span>
             <div className="font-mono text-lg">
-              ${(metrics.totalCost / metrics.requestsToday * 1000).toFixed(2)}m
+              ${(metrics.totalCost / metrics.requestsToday * 1000000).toFixed(2)}/million
             </div>
           </div>
         </div>

@@ -253,7 +253,7 @@ export function calculateSessionRating(
 
 export function formatCost(cost: number): string {
   if (cost < 0.001) {
-    return `$${(cost * 1000).toFixed(2)}m`; // Show in millicents
+    return `$${(cost * 1000000).toFixed(2)}/million`; // Show per million tokens
   }
   return `$${cost.toFixed(4)}`;
 }
