@@ -1,16 +1,22 @@
 import OpenAI from 'openai';
 import PQueue from 'p-queue';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Only initialize OpenAI on the server
+let openai: OpenAI | null = null;
+let queue: PQueue | null = null;
 
-// Rate limiting: 10 requests per minute
-const queue = new PQueue({
-  concurrency: 1,
-  interval: 60000, // 1 minute
-  intervalCap: 10, // 10 requests per minute
-});
+if (typeof window === 'undefined') {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  
+  // Rate limiting: 10 requests per minute
+  queue = new PQueue({
+    concurrency: 1,
+    interval: 60000, // 1 minute
+    intervalCap: 10, // 10 requests per minute
+  });
+}
 
 export interface ModelConfig {
   model: string;
@@ -79,6 +85,10 @@ export async function callLLM(
   prompt: string,
   modelKey: string = 'gpt-3.5-turbo'
 ): Promise<LLMResponse> {
+  if (!openai || !queue) {
+    throw new Error('OpenAI client not initialized - this function must be called server-side');
+  }
+  
   const startTime = Date.now();
   const config = MODELS[modelKey];
 
