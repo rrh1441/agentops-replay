@@ -258,9 +258,19 @@ export function calculateSessionRating(
   };
 }
 
-export function formatCost(cost: number): string {
-  // ALWAYS show cost per million tokens for consistency
-  return `$${(cost * 1000000).toFixed(2)} per million tokens`;
+export function formatCost(cost: number, tokensUsed?: number): string {
+  // The 'cost' parameter is already the exact cost for this specific session
+  // calculated from actual token usage (e.g., 731 input + 67 output tokens)
+  // Scale it up by 1000x to show per 1K sessions for readability
+  
+  const costPer1KSessions = cost * 1000;
+  
+  // For very small amounts, also show per-session cost
+  if (cost < 0.001) {
+    return `$${costPer1KSessions.toFixed(2)} per 1K sessions ($${cost.toFixed(6)}/session)`;
+  }
+  
+  return `$${costPer1KSessions.toFixed(2)} per 1K sessions`;
 }
 
 export function recommendModel(sessions: any[]): {

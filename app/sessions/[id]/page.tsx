@@ -121,7 +121,7 @@ export default function SessionDetail() {
                 </span>
                 {session.cost && (
                   <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">
-                    Cost: {formatCost(session.cost)}
+                    Cost: {formatCost(session.cost, session.totalTokens)}
                   </span>
                 )}
                 {session.rating && (
@@ -323,7 +323,7 @@ function EventInspector({ event }: { event: TraceEvent | null }) {
               <div>
                 <span className="text-xs text-gray-600">Cost</span>
                 <div className="text-2xl font-bold text-gray-900">
-                  {event.metadata?.cost ? formatCost(event.metadata.cost) : 'N/A'}
+                  {event.metadata?.cost ? formatCost(event.metadata.cost, event.metadata?.tokens?.total) : 'N/A'}
                 </div>
               </div>
               {event.metadata?.tokens && (
