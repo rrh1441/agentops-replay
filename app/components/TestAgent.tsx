@@ -12,6 +12,9 @@ interface AgentTestResult {
   rating: number;
   recommendation: string;
   latency: number;
+  inputTokens?: number;
+  outputTokens?: number;
+  prompt?: string;
   kpis: {
     revenue: number;
     cogs: number;

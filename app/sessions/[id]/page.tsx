@@ -15,7 +15,6 @@ export default function SessionDetail() {
   const [replaying, setReplaying] = useState(false);
   const [replayProgress, setReplayProgress] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [showJson, setShowJson] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -345,7 +344,7 @@ function EventInspector({ event }: { event: TraceEvent | null }) {
               <h3 className="font-semibold text-red-700 mb-3 text-sm uppercase tracking-wide">❌ Error Details</h3>
               <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
                 <pre className="text-sm text-red-800 whitespace-pre-wrap">
-                  {JSON.stringify(event.output?.error || event.error || 'Unknown error', null, 2)}
+                  {JSON.stringify(event.output?.error || (event as any).error || 'Unknown error', null, 2)}
                 </pre>
               </div>
             </div>
@@ -428,6 +427,7 @@ function EventInspector({ event }: { event: TraceEvent | null }) {
             )}
           </div>
         </div>
+      </div>
       )}
     </div>
   );
