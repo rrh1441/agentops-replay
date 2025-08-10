@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "=== AgentOps Replay Validation ==="
+echo "=== ClearFrame Validation ==="
 
 # Check if server is running
 if curl -s http://localhost:3000 > /dev/null; then

@@ -1,4 +1,4 @@
-# AgentOps Replay - Complete Testing Guide
+# ClearFrame - Complete Testing Guide
 
 ## ⚠️ CRITICAL: Server Configuration
 **The server MUST be started without --turbopack flag or the API endpoints will fail with 500 errors.**
@@ -216,7 +216,7 @@ for s in data[:3]:
 Create `validate.sh`:
 ```bash
 #!/bin/bash
-echo "=== AgentOps Replay Validation ==="
+echo "=== ClearFrame Validation ==="
 
 # Check if server is running
 if curl -s http://localhost:3000 > /dev/null; then

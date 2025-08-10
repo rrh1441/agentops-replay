@@ -101,7 +101,7 @@ export default function SessionsPage() {
               <div className="text-4xl">🔍</div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  AgentOps Replay
+                  ClearFrame
                 </h1>
                 <p className="text-gray-600 mt-1">
                   Universal AI Agent Observability Platform

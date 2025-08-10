@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "==========================="
-echo "AGENTOPS REPLAY FINAL TEST"
+echo "CLEARFRAME FINAL TEST"
 echo "==========================="
 echo ""
 

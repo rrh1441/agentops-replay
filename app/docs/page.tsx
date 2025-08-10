@@ -9,7 +9,7 @@ export default function DocsPage() {
             <div className="text-4xl">📚</div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                AgentOps Replay Documentation
+                ClearFrame Documentation
               </h1>
               <p className="text-gray-600 mt-1">
                 How to test and monitor your AI agents
@@ -22,7 +22,7 @@ export default function DocsPage() {
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Overview</h2>
               <p className="text-gray-700 mb-4">
-                AgentOps Replay is an observability platform for AI agents. It provides complete logging, 
+                ClearFrame is an observability platform for AI agents. It provides complete logging, 
                 deterministic replay, and multi-model comparison to help you:
               </p>
               <ul className="list-disc list-inside space-y-2 text-gray-700">

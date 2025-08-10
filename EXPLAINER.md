@@ -1,4 +1,4 @@
-# AgentOps Replay - AI Agent Testing Platform
+# ClearFrame - AI Agent Testing Platform
 
 ## The AI Agent Reliability Crisis
 
@@ -22,7 +22,7 @@ Your agent produces wildly different results based on:
 
 **Without proper testing, you don't know which one your customers are getting.**
 
-## What AgentOps Replay Does
+## What ClearFrame Does
 
 ### **Agent Testing Platform**
 Test your AI agents across multiple models simultaneously:
@@ -159,7 +159,7 @@ For 1M agent calls per month:
 
 ## The Future of AI Reliability
 
-**AgentOps Replay represents the next evolution of software reliability.**
+**ClearFrame represents the next evolution of software reliability.**
 
 Just as we learned to monitor web applications, databases, and microservices - we now need to monitor AI agents. The stakes are higher: AI agents make decisions, spend money, and interact with customers.
 
