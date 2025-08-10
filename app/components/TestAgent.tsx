@@ -310,49 +310,78 @@ export function TestAgent() {
 
                 {session.success ? (
                   <div>
-                    {/* KPI Results */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-3">
-                      <div>
-                        <span className="text-xs text-gray-600 uppercase tracking-wide">Revenue</span>
-                        <div className="font-mono text-sm">${session.kpis.revenue.toLocaleString()}</div>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-600 uppercase tracking-wide">COGS</span>
-                        <div className="font-mono text-sm">${session.kpis.cogs.toLocaleString()}</div>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-600 uppercase tracking-wide">OpEx</span>
-                        <div className="font-mono text-sm">${session.kpis.opex.toLocaleString()}</div>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-600 uppercase tracking-wide">EBITDA</span>
-                        <div className="font-mono text-sm font-semibold">${session.kpis.ebitda.toLocaleString()}</div>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-600 uppercase tracking-wide">Margin</span>
-                        <div className="font-mono text-sm">{session.kpis.margin}</div>
+                    {/* Core Observability Metrics */}
+                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <span className="text-xs text-gray-600 uppercase tracking-wide">Latency</span>
+                          <div className="font-mono text-lg font-semibold">{session.latency}ms</div>
+                        </div>
+                        <div>
+                          <span className="text-xs text-gray-600 uppercase tracking-wide">Cost</span>
+                          <div className="font-mono text-lg font-semibold">{session.costFormatted}</div>
+                        </div>
+                        <div>
+                          <span className="text-xs text-gray-600 uppercase tracking-wide">Input Tokens</span>
+                          <div className="font-mono text-lg">{session.inputTokens?.toLocaleString() || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <span className="text-xs text-gray-600 uppercase tracking-wide">Output Tokens</span>
+                          <div className="font-mono text-lg">{session.outputTokens?.toLocaleString() || 'N/A'}</div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Performance Metrics */}
-                    <div className="grid grid-cols-3 gap-4 text-xs text-gray-600">
-                      <div>
-                        <span>Cost: </span>
-                        <span className="font-mono">{session.costFormatted}</span>
+                    {/* Prompt Preview */}
+                    <div className="mb-3">
+                      <div className="text-xs text-gray-600 uppercase tracking-wide mb-1">Prompt Sent</div>
+                      <div className="bg-blue-50 p-2 rounded text-xs font-mono overflow-x-auto max-h-20 overflow-y-auto">
+                        {session.prompt ? session.prompt.slice(0, 200) + (session.prompt.length > 200 ? '...' : '') : 'N/A'}
                       </div>
-                      <div>
-                        <span>Latency: </span>
-                        <span className="font-mono">{session.latency}ms</span>
+                    </div>
+
+                    {/* Response Preview */}
+                    <div className="mb-3">
+                      <div className="text-xs text-gray-600 uppercase tracking-wide mb-1">Response Received</div>
+                      <div className="bg-green-50 p-2 rounded text-xs font-mono overflow-x-auto max-h-20 overflow-y-auto">
+                        {JSON.stringify(session.kpis, null, 2).slice(0, 200)}...
                       </div>
-                      <div>
-                        <span>Session: </span>
-                        <a 
-                          href={`/sessions/${session.sessionId}`}
-                          className="font-mono text-blue-600 hover:underline"
-                        >
-                          {session.sessionId.slice(0, 8)}...
-                        </a>
-                      </div>
+                    </div>
+
+                    {/* Session Link */}
+                    <div className="flex justify-between items-center">
+                      <a 
+                        href={`/sessions/${session.sessionId}`}
+                        className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                      >
+                        <span>🔍</span>
+                        <span>View Full Session Details</span>
+                      </a>
+                      <button
+                        onClick={() => {
+                          const data = {
+                            sessionId: session.sessionId,
+                            model: session.model,
+                            temperature: session.temperature,
+                            latency: session.latency,
+                            cost: session.cost,
+                            inputTokens: session.inputTokens,
+                            outputTokens: session.outputTokens,
+                            prompt: session.prompt,
+                            response: session.kpis,
+                            timestamp: new Date().toISOString()
+                          };
+                          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `session-${session.sessionId}.json`;
+                          a.click();
+                        }}
+                        className="text-sm text-gray-600 hover:text-gray-800"
+                      >
+                        💾 Export JSON
+                      </button>
                     </div>
 
                     {/* Recommendations */}

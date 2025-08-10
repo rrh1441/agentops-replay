@@ -15,6 +15,7 @@ export default function SessionDetail() {
   const [replaying, setReplaying] = useState(false);
   const [replayProgress, setReplayProgress] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showJson, setShowJson] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -255,6 +256,8 @@ function ComplianceBadge({ score }: { score: number }) {
 }
 
 function EventInspector({ event }: { event: TraceEvent | null }) {
+  const [showRawJson, setShowRawJson] = useState(false);
+  
   if (!event) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-gray-400">
@@ -264,18 +267,147 @@ function EventInspector({ event }: { event: TraceEvent | null }) {
     );
   }
 
+  // Extract the LLM-specific details
+  const isLLMCall = event.type === 'llm_call';
+  const hasError = event.type === 'error' || event.output?.error;
+  
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">Event Inspector</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Event Inspector</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowRawJson(!showRawJson)}
+            className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          >
+            {showRawJson ? 'Hide JSON' : 'Show JSON'}
+          </button>
+          <button
+            onClick={() => {
+              const blob = new Blob([JSON.stringify(event, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `event-${event.eventId}.json`;
+              a.click();
+            }}
+            className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors"
+          >
+            Export JSON
+          </button>
+        </div>
+      </div>
       
-      <div className="space-y-6">
-        <div>
-          <h3 className="font-semibold text-gray-700 mb-2 text-sm uppercase tracking-wide">Event Details</h3>
-          <div className="bg-gray-50 p-4 rounded-lg text-sm space-y-2">
-            <div className="flex justify-between">
-              <span className="text-gray-600">ID:</span>
-              <span className="font-mono text-xs">{event.eventId}</span>
+      {showRawJson ? (
+        <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+          {JSON.stringify(event, null, 2)}
+        </pre>
+      ) : (
+        <div className="space-y-6">
+          {/* Core Metrics */}
+          <div>
+            <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">⚡ Performance Metrics</h3>
+            <div className="bg-gray-50 p-4 rounded-lg grid grid-cols-2 gap-4">
+              <div>
+                <span className="text-xs text-gray-600">Latency</span>
+                <div className="text-2xl font-bold text-gray-900">
+                  {event.metadata?.duration_ms || 0}ms
+                </div>
+              </div>
+              <div>
+                <span className="text-xs text-gray-600">Cost</span>
+                <div className="text-2xl font-bold text-gray-900">
+                  {event.metadata?.cost ? formatCost(event.metadata.cost) : 'N/A'}
+                </div>
+              </div>
+              {event.metadata?.tokens && (
+                <>
+                  <div>
+                    <span className="text-xs text-gray-600">Input Tokens</span>
+                    <div className="text-lg font-semibold text-gray-700">
+                      {event.metadata.tokens.input?.toLocaleString() || 0}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-600">Output Tokens</span>
+                    <div className="text-lg font-semibold text-gray-700">
+                      {event.metadata.tokens.output?.toLocaleString() || 0}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
+          </div>
+          
+          {/* Error Display */}
+          {hasError && (
+            <div>
+              <h3 className="font-semibold text-red-700 mb-3 text-sm uppercase tracking-wide">❌ Error Details</h3>
+              <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+                <pre className="text-sm text-red-800 whitespace-pre-wrap">
+                  {JSON.stringify(event.output?.error || event.error || 'Unknown error', null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+          
+          {/* Prompt/Input */}
+          {event.input && (
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">📥 Input / Prompt</h3>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <pre className="text-sm text-gray-800 whitespace-pre-wrap">
+                  {typeof event.input === 'string' ? event.input : JSON.stringify(event.input, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+          
+          {/* Response/Output */}
+          {event.output && !hasError && (
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">📤 Output / Response</h3>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <pre className="text-sm text-gray-800 whitespace-pre-wrap">
+                  {typeof event.output === 'string' ? event.output : JSON.stringify(event.output, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+          
+          {/* Model Configuration */}
+          {isLLMCall && (
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">⚙️ Model Configuration</h3>
+              <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Model:</span>
+                  <span className="font-mono ml-2">{event.metadata?.model || 'Unknown'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Temperature:</span>
+                  <span className="font-mono ml-2">{event.metadata?.temperature ?? 'N/A'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Max Tokens:</span>
+                  <span className="font-mono ml-2">{event.metadata?.max_tokens || 'Default'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Timestamp:</span>
+                  <span className="font-mono ml-2">{new Date(event.timestamp).toISOString()}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Metadata */}
+          <div>
+            <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">🏷️ Event Metadata</h3>
+            <div className="bg-gray-50 p-4 rounded-lg text-sm space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Event ID:</span>
+                <span className="font-mono text-xs">{event.eventId}</span>
+              </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Type:</span>
               <span className="font-semibold">{event.type}</span>
@@ -296,34 +428,7 @@ function EventInspector({ event }: { event: TraceEvent | null }) {
             )}
           </div>
         </div>
-
-        {event.input && (
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-2 text-sm uppercase tracking-wide">Input</h3>
-            <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto font-mono">
-              {JSON.stringify(event.input, null, 2)}
-            </pre>
-          </div>
-        )}
-
-        {event.output && (
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-2 text-sm uppercase tracking-wide">Output</h3>
-            <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto font-mono">
-              {JSON.stringify(event.output, null, 2)}
-            </pre>
-          </div>
-        )}
-
-        {event.metadata && (
-          <div>
-            <h3 className="font-semibold text-gray-700 mb-2 text-sm uppercase tracking-wide">Metadata</h3>
-            <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto font-mono">
-              {JSON.stringify(event.metadata, null, 2)}
-            </pre>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
