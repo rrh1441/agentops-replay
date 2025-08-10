@@ -134,20 +134,21 @@ export function TestAgent() {
   };
 
   const getModelDisplayName = (model: string) => {
-    if (model.includes('gpt-5-mini')) return 'GPT-5 Mini';
-    if (model.includes('gpt-4o-mini')) return 'GPT-4o Mini'; 
-    if (model.includes('gpt-3.5-turbo')) {
-      if (model.includes('nondeterministic')) return 'GPT-3.5 (T=0.7)';
-      return 'GPT-3.5 (T=0)';
-    }
+    if (model === 'gpt-4.1') return 'GPT-4.1';
+    if (model === 'gpt-4.1-mini') return 'GPT-4.1 Mini';
+    if (model === 'gpt-4o') return 'GPT-4o';
+    if (model === 'gpt-4o-mini') return 'GPT-4o Mini';
+    if (model === 'o3') return 'O3';
     return model;
   };
 
   const getModelColor = (model: string) => {
-    if (model.includes('gpt-5')) return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (model.includes('gpt-4')) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (model.includes('nondeterministic')) return 'bg-orange-100 text-orange-800 border-orange-200';
-    return 'bg-green-100 text-green-800 border-green-200';
+    if (model === 'o3') return 'bg-purple-100 text-purple-800 border-purple-200';
+    if (model === 'gpt-4.1') return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (model === 'gpt-4.1-mini') return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+    if (model === 'gpt-4o') return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    if (model === 'gpt-4o-mini') return 'bg-green-100 text-green-800 border-green-200';
+    return 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
   return (
@@ -255,7 +256,7 @@ export function TestAgent() {
         <div className="text-center py-8">
           <div className="animate-spin text-4xl mb-4">🔄</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Testing Agent Across All Models</h3>
-          <p className="text-gray-600">Running GPT-4o and GPT-3.5 models...</p>
+          <p className="text-gray-600">Running GPT-4.1, GPT-4o, and O3 models...</p>
         </div>
       )}
 

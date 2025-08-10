@@ -66,20 +66,21 @@ export function ModelComparison() {
   };
 
   const getModelDisplayName = (model: string) => {
-    if (model.includes('gpt-5-mini-2025-08-07')) return 'GPT-5 Mini';
-    if (model.includes('gpt-4o-mini')) return 'GPT-4o Mini';
-    if (model.includes('gpt-3.5-turbo')) {
-      if (model.includes('nondeterministic')) return 'GPT-3.5 (T=0.7)';
-      return 'GPT-3.5 (T=0)';
-    }
+    if (model === 'gpt-4.1') return 'GPT-4.1';
+    if (model === 'gpt-4.1-mini') return 'GPT-4.1 Mini';
+    if (model === 'gpt-4o') return 'GPT-4o';
+    if (model === 'gpt-4o-mini') return 'GPT-4o Mini';
+    if (model === 'o3') return 'O3';
     return model;
   };
 
   const getModelColor = (model: string) => {
-    if (model.includes('gpt-5')) return 'bg-purple-100 text-purple-800 border-purple-200';
-    if (model.includes('gpt-4')) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (model.includes('nondeterministic')) return 'bg-orange-100 text-orange-800 border-orange-200';
-    return 'bg-green-100 text-green-800 border-green-200';
+    if (model === 'o3') return 'bg-purple-100 text-purple-800 border-purple-200';
+    if (model === 'gpt-4.1') return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (model === 'gpt-4.1-mini') return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+    if (model === 'gpt-4o') return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    if (model === 'gpt-4o-mini') return 'bg-green-100 text-green-800 border-green-200';
+    return 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
   return (

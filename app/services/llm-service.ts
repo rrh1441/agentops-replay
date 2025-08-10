@@ -27,26 +27,40 @@ export interface ModelConfig {
 }
 
 export const MODELS: Record<string, ModelConfig> = {
-  'gpt-3.5-turbo': {
-    model: 'gpt-3.5-turbo',
+  'gpt-4.1': {
+    model: 'gpt-4.1',
     temperature: 0,
     maxTokens: 4096,
-    costPer1kInput: 0.0005,
-    costPer1kOutput: 0.0015,
+    costPer1kInput: 0.002,    // $2.00 per 1M tokens
+    costPer1kOutput: 0.008,   // $8.00 per 1M tokens
   },
-  'gpt-3.5-turbo-nondeterministic': {
-    model: 'gpt-3.5-turbo',
-    temperature: 0.7,
+  'gpt-4.1-mini': {
+    model: 'gpt-4.1-mini',
+    temperature: 0,
     maxTokens: 4096,
-    costPer1kInput: 0.0005,
-    costPer1kOutput: 0.0015,
+    costPer1kInput: 0.0004,   // $0.40 per 1M tokens
+    costPer1kOutput: 0.0016,  // $1.60 per 1M tokens
+  },
+  'gpt-4o': {
+    model: 'gpt-4o',
+    temperature: 0,
+    maxTokens: 4096,
+    costPer1kInput: 0.0025,   // $2.50 per 1M tokens
+    costPer1kOutput: 0.010,   // $10.00 per 1M tokens
   },
   'gpt-4o-mini': {
     model: 'gpt-4o-mini',
-    temperature: 1,
+    temperature: 0,
     maxTokens: 4096,
-    costPer1kInput: 0.00015,
-    costPer1kOutput: 0.0006,
+    costPer1kInput: 0.00015,  // $0.15 per 1M tokens
+    costPer1kOutput: 0.0006,  // $0.60 per 1M tokens
+  },
+  'o3': {
+    model: 'o3',
+    temperature: 0,
+    maxTokens: 4096,
+    costPer1kInput: 0.002,    // $2.00 per 1M tokens
+    costPer1kOutput: 0.008,   // $8.00 per 1M tokens
   },
 };
 
@@ -76,7 +90,7 @@ export interface SessionRating {
 
 export async function callLLM(
   prompt: string,
-  modelKey: string = 'gpt-3.5-turbo'
+  modelKey: string = 'gpt-4o-mini'
 ): Promise<LLMResponse> {
   if (!openai || !queue) {
     throw new Error('OpenAI client not initialized - this function must be called server-side');
