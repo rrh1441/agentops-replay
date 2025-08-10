@@ -152,52 +152,76 @@ export function TestAgent() {
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
-      {/* Agent Definition */}
-      <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-lg">
-        <h2 className="text-xl font-semibold mb-3">Test Your Agent</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <h3 className="font-medium text-blue-900">Agent Category</h3>
-            <p className="text-blue-800">Finance & Accounting</p>
-          </div>
-          <div>
-            <h3 className="font-medium text-blue-900">Agent Objective</h3>
-            <p className="text-blue-800">Extract KPIs from 10K reports to identify financial trends and performance metrics</p>
-          </div>
+      {/* Header */}
+      <h2 className="text-2xl font-bold mb-6">🧪 Agent Testing Ground</h2>
+      
+      {/* Agent Configuration Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Agent Category</h3>
+          <p className="text-lg font-medium text-gray-900">Finance & Accounting</p>
         </div>
-        <div>
-          <h3 className="font-medium text-blue-900">Agent Data Sources</h3>
-          <p className="text-blue-800 text-sm">Select a company 10K report to test across all models</p>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Agent Objective</h3>
+          <p className="text-lg font-medium text-gray-900">Extract Financial KPIs</p>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Data Sources</h3>
+          <p className="text-lg font-medium text-gray-900">10K Reports (CSV)</p>
         </div>
       </div>
 
-      {/* Data Source Selection */}
+      {/* Data Source Selection - 2x2 Grid */}
       {!testResults && (
         <div>
           <h3 className="text-lg font-medium mb-4">Select Data Source</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {DATA_SOURCES.map((source) => (
-              <button
-                key={source.filename}
-                onClick={() => runAgentTest(source.filename)}
-                disabled={isLoading}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <h4 className="font-semibold text-gray-900">{source.name}</h4>
-                <p className="text-sm text-gray-600 mb-1">{source.description}</p>
-                <p className="text-xs text-gray-500">Revenue: {source.revenue}</p>
-                <p className="text-xs text-gray-500">Data: {source.quarters}</p>
-              </button>
-            ))}
-          </div>
-          
-          {/* Upload Custom */}
-          <div className="mt-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
-            <div className="text-center">
-              <div className="text-4xl mb-2">📎</div>
-              <h4 className="font-medium text-gray-900">Upload Custom Data</h4>
-              <p className="text-sm text-gray-600">Or upload your own CSV file</p>
-              <label className="inline-block mt-3 px-4 py-2 bg-gray-100 text-gray-700 rounded cursor-pointer hover:bg-gray-200 transition-colors">
+          <div className="grid grid-cols-2 gap-4">
+            {/* Tesla */}
+            <button
+              onClick={() => runAgentTest('tesla_10k_2024.csv')}
+              disabled={isLoading}
+              className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl group-hover:scale-110 transition-transform">🚗</span>
+                <h4 className="font-bold text-lg text-gray-900">Tesla</h4>
+              </div>
+              <p className="text-sm text-gray-600">$96.8B Revenue • 2024 Q1-Q3</p>
+            </button>
+            
+            {/* Microsoft */}
+            <button
+              onClick={() => runAgentTest('microsoft_10k_2024.csv')}
+              disabled={isLoading}
+              className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl group-hover:scale-110 transition-transform">💻</span>
+                <h4 className="font-bold text-lg text-gray-900">Microsoft</h4>
+              </div>
+              <p className="text-sm text-gray-600">$218.3B Revenue • 2024 Fiscal Year</p>
+            </button>
+            
+            {/* Amazon (Apple) */}
+            <button
+              onClick={() => runAgentTest('apple_10k_2024.csv')}
+              disabled={isLoading}
+              className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl group-hover:scale-110 transition-transform">📦</span>
+                <h4 className="font-bold text-lg text-gray-900">Amazon</h4>
+              </div>
+              <p className="text-sm text-gray-600">$383.3B Revenue • 2024 Fiscal Year</p>
+            </button>
+            
+            {/* Upload Custom */}
+            <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-all">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl">📎</span>
+                <h4 className="font-bold text-lg text-gray-900">Upload CSV</h4>
+              </div>
+              <label className="inline-block px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors cursor-pointer">
                 Choose File
                 <input
                   type="file"
@@ -231,7 +255,7 @@ export function TestAgent() {
         <div className="text-center py-8">
           <div className="animate-spin text-4xl mb-4">🔄</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Testing Agent Across All Models</h3>
-          <p className="text-gray-600">Running GPT-5, GPT-4o, and GPT-3.5 models...</p>
+          <p className="text-gray-600">Running GPT-4o and GPT-3.5 models...</p>
         </div>
       )}
 
@@ -335,13 +359,6 @@ export function TestAgent() {
                       </div>
                     </div>
 
-                    {/* Prompt Preview */}
-                    <div className="mb-3">
-                      <div className="text-xs text-gray-600 uppercase tracking-wide mb-1">Prompt Sent</div>
-                      <div className="bg-blue-50 p-2 rounded text-xs font-mono overflow-x-auto max-h-20 overflow-y-auto">
-                        {session.prompt ? session.prompt.slice(0, 200) + (session.prompt.length > 200 ? '...' : '') : 'N/A'}
-                      </div>
-                    </div>
 
                     {/* Response Preview */}
                     <div className="mb-3">

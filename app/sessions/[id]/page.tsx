@@ -247,8 +247,15 @@ function ComplianceBadge({ score }: { score: number }) {
                 score >= 50 ? 'bg-yellow-100 text-yellow-800' : 
                 'bg-red-100 text-red-800';
   
+  const getExplanation = () => {
+    if (score === 100) return 'Fully deterministic, no PII, within token limits';
+    if (score >= 67) return 'Mostly compliant (2/3 checks passed)';
+    if (score >= 33) return 'Partially compliant (1/3 checks passed)';
+    return 'Non-compliant (0/3 checks passed)';
+  };
+  
   return (
-    <div className={`px-2 py-1 rounded text-xs font-semibold ${color}`}>
+    <div className={`px-2 py-1 rounded text-xs font-semibold ${color}`} title={getExplanation()}>
       {score}% Compliant
     </div>
   );
@@ -394,6 +401,33 @@ function EventInspector({ event }: { event: TraceEvent | null }) {
                 <div>
                   <span className="text-gray-600">Timestamp:</span>
                   <span className="font-mono ml-2">{new Date(event.timestamp).toISOString()}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Compliance Details */}
+          {event.metadata?.compliance && (
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">✅ Compliance Details</h3>
+              <div className="bg-yellow-50 p-4 rounded-lg text-sm space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Deterministic (T=0):</span>
+                  <span className={event.metadata.compliance.deterministic ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                    {event.metadata.compliance.deterministic ? '✓ Yes' : '✗ No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">No PII Detected:</span>
+                  <span className={event.metadata.compliance.no_pii ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                    {event.metadata.compliance.no_pii ? '✓ Yes' : '✗ No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Within Token Limit:</span>
+                  <span className={event.metadata.compliance.within_token_limit ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                    {event.metadata.compliance.within_token_limit ? '✓ Yes' : '✗ No'}
+                  </span>
                 </div>
               </div>
             </div>

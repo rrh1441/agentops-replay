@@ -343,6 +343,8 @@ async function runSingleAnalysis(
       rating: rating.stars,
       recommendation: rating.recommendation,
       latency: llmResponse.latency,
+      inputTokens: llmResponse.inputTokens,
+      outputTokens: llmResponse.outputTokens,
       kpis
     };
     

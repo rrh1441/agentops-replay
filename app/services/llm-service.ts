@@ -48,13 +48,6 @@ export const MODELS: Record<string, ModelConfig> = {
     costPer1kInput: 0.00015,
     costPer1kOutput: 0.0006,
   },
-  'gpt-5-mini': {
-    model: 'gpt-5-mini-2025-08-07',
-    temperature: 0,
-    maxTokens: 4096,
-    costPer1kInput: 0.00025,  // $0.25 per 1M tokens
-    costPer1kOutput: 0.002,   // $2.00 per 1M tokens
-  },
 };
 
 export interface LLMResponse {
