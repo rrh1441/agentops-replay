@@ -49,7 +49,7 @@ export const MODELS: Record<string, ModelConfig> = {
     costPer1kOutput: 0.0006,
   },
   'gpt-5-mini': {
-    model: 'gpt-5-mini',
+    model: 'gpt-5-mini-2025-08-07',
     temperature: 0,
     maxTokens: 4096,
     costPer1kInput: 0.00025,  // $0.25 per 1M tokens
