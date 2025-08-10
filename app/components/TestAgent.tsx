@@ -182,13 +182,15 @@ export function TestAgent() {
                 selectedDataSource === 'tesla_10k_2024.csv' 
                   ? 'border-blue-500 bg-blue-50' 
                   : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-              }`
+              }`}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl group-hover:scale-110 transition-transform">🚗</span>
-                <h4 className="font-bold text-lg text-gray-900">Tesla</h4>
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-3xl group-hover:scale-110 transition-transform">🚗</span>
+                  <h4 className="font-bold text-lg text-gray-900">Tesla</h4>
+                </div>
+                <p className="text-sm text-gray-600">$96.8B Revenue • 2024 Q1-Q3</p>
               </div>
-              <p className="text-sm text-gray-600">$96.8B Revenue • 2024 Q1-Q3</p>
             </button>
             
             {/* Microsoft */}
@@ -199,13 +201,15 @@ export function TestAgent() {
                 selectedDataSource === 'microsoft_10k_2024.csv' 
                   ? 'border-blue-500 bg-blue-50' 
                   : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-              }`
+              }`}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl group-hover:scale-110 transition-transform">💻</span>
-                <h4 className="font-bold text-lg text-gray-900">Microsoft</h4>
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-3xl group-hover:scale-110 transition-transform">💻</span>
+                  <h4 className="font-bold text-lg text-gray-900">Microsoft</h4>
+                </div>
+                <p className="text-sm text-gray-600">$218.3B Revenue • 2024 Fiscal Year</p>
               </div>
-              <p className="text-sm text-gray-600">$218.3B Revenue • 2024 Fiscal Year</p>
             </button>
             
             {/* Amazon (Apple) */}
@@ -216,13 +220,15 @@ export function TestAgent() {
                 selectedDataSource === 'apple_10k_2024.csv' 
                   ? 'border-blue-500 bg-blue-50' 
                   : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
-              }`
+              }`}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-3xl group-hover:scale-110 transition-transform">📦</span>
-                <h4 className="font-bold text-lg text-gray-900">Amazon</h4>
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-3xl group-hover:scale-110 transition-transform">📦</span>
+                  <h4 className="font-bold text-lg text-gray-900">Amazon</h4>
+                </div>
+                <p className="text-sm text-gray-600">$383.3B Revenue • 2024 Fiscal Year</p>
               </div>
-              <p className="text-sm text-gray-600">$383.3B Revenue • 2024 Fiscal Year</p>
             </button>
             
             {/* Upload Custom */}

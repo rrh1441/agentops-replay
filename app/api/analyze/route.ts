@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     const allModels = selectedModels || getAllModelKeys();
     
     // Run analysis for each model in parallel
-    const analysisPromises = allModels.map(async (modelKey) => {
+    const analysisPromises = allModels.map(async (modelKey: string) => {
       return runSingleAnalysis(file, records, modelKey);
     });
     
