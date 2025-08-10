@@ -42,29 +42,7 @@ interface ComparisonResult {
   };
 }
 
-const DATA_SOURCES = [
-  {
-    name: 'Tesla 10K 2024',
-    filename: 'tesla_10k_2024.csv',
-    description: 'Automotive & Energy',
-    revenue: '$96.8B',
-    quarters: 'Q1-Q4'
-  },
-  {
-    name: 'Microsoft 10K 2024', 
-    filename: 'microsoft_10k_2024.csv',
-    description: 'Cloud & Software',
-    revenue: '$254.2B',
-    quarters: 'Q1-Q4'
-  },
-  {
-    name: 'Apple 10K 2024',
-    filename: 'apple_10k_2024.csv', 
-    description: 'Consumer Electronics',
-    revenue: '$424.5B',
-    quarters: 'Q1-Q4'
-  }
-];
+// DATA_SOURCES removed - using inline data in the 2x2 grid
 
 export function TestAgent() {
   const [testResults, setTestResults] = useState<ComparisonResult | null>(null);

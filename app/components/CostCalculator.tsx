@@ -6,7 +6,7 @@ import { MODELS, formatCost } from '@/app/services/llm-service';
 export function CostCalculator() {
   const [sessions, setSessions] = useState(100);
   const [tokensPerSession, setTokensPerSession] = useState(1000);
-  const [modelKey, setModelKey] = useState('gpt-3.5-turbo');
+  const [modelKey, setModelKey] = useState('gpt-4o-mini');
 
   const model = MODELS[modelKey];
   const inputTokens = tokensPerSession * 0.7; // Assume 70% input
@@ -44,9 +44,12 @@ export function CostCalculator() {
             onChange={(e) => setModelKey(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="gpt-3.5-turbo">GPT-3.5-turbo (Deterministic)</option>
-            <option value="gpt-3.5-turbo-nondeterministic">GPT-3.5-turbo (Non-deterministic)</option>
-            <option value="gpt-4o-mini">GPT-4o-mini (Advanced)</option>
+            <option value="gpt-4o-mini">GPT-4o Mini (Cheapest)</option>
+            <option value="gpt-4o-mini-creative">GPT-4o Mini (Creative T=0.7)</option>
+            <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+            <option value="gpt-4.1">GPT-4.1</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="o3">O3</option>
           </select>
         </div>
         
@@ -101,8 +104,8 @@ export function CostCalculator() {
         
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
           <p className="text-xs text-yellow-800">
-            <strong>💡 Pro Tip:</strong> Using temperature=0 with GPT-3.5-turbo provides 
-            the best balance of cost ({formatCost(MODELS['gpt-3.5-turbo'].costPer1kInput)}/1k tokens) 
+            <strong>💡 Pro Tip:</strong> Using temperature=0 with GPT-4o Mini provides 
+            the best balance of cost ({formatCost(MODELS['gpt-4o-mini'].costPer1kInput)}/1k tokens) 
             and determinism for production workloads.
           </p>
         </div>

@@ -34,7 +34,7 @@ export async function POST(
     // Create new replay session
     const replaySession = await createSession({
       file_name: `REPLAY: ${originalSession.file_name}`,
-      model: originalSession.model || 'gpt-3.5-turbo',
+      model: originalSession.model || 'gpt-4o-mini',
       temperature: originalSession.temperature || 0,
       status: 'running',
       parent_session_id: id
@@ -59,8 +59,8 @@ export async function POST(
         
         try {
           const modelKey = originalSession.model?.includes('gpt-4') ? 'gpt-4o-mini' :
-                          originalSession.temperature === 0.7 ? 'gpt-3.5-turbo-nondeterministic' :
-                          'gpt-3.5-turbo';
+                          originalSession.temperature === 0.7 ? 'gpt-4o-mini-creative' :
+                          'gpt-4o-mini';
           
           const llmResponse = await callLLM(prompt, modelKey);
           const newKpis = JSON.parse(llmResponse.content);

@@ -20,7 +20,7 @@ const scenarios: Scenario[] = [
     name: 'Deterministic Analysis',
     description: 'Run with GPT-3.5-turbo at temperature=0 for reproducible results',
     icon: '🎯',
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4o-mini',
     temperature: 0,
     expectedOutcome: 'Identical results on every run',
     csvFile: 'tesla_10k_2024.csv'
@@ -65,9 +65,9 @@ export function DemoScenarios() {
       if (scenario.id === 'comparison') {
         // Run multiple analyses with different models
         const models = [
-          { key: 'gpt-3.5-turbo', name: 'GPT-3.5 (temp=0)' },
-          { key: 'gpt-3.5-turbo-nondeterministic', name: 'GPT-3.5 (temp=0.7)' },
-          { key: 'gpt-4o-mini', name: 'GPT-4o-mini' }
+          { key: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+          { key: 'gpt-4o-mini-creative', name: 'GPT-4o Mini (T=0.7)' },
+          { key: 'gpt-4.1', name: 'GPT-4.1' }
         ];
         
         const sessionIds: string[] = [];
@@ -102,9 +102,9 @@ export function DemoScenarios() {
         formData.append('file', file);
         if (scenario.model !== 'mixed') {
           formData.append('modelOverride', 
-            scenario.temperature === 0 ? 'gpt-3.5-turbo' :
-            scenario.temperature === 0.7 ? 'gpt-3.5-turbo-nondeterministic' :
-            'gpt-4o-mini'
+            scenario.temperature === 0 ? 'gpt-4o-mini' :
+            scenario.temperature === 0.7 ? 'gpt-4o-mini-creative' :
+            'gpt-4.1'
           );
         }
         
