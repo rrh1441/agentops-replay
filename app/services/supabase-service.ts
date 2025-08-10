@@ -9,9 +9,8 @@ export interface Session {
   id: string;
   created_at: string;
   file_name: string;
-  file_hash: string;
-  model: string;
-  temperature: number;
+  model?: string;
+  temperature?: number;
   status: 'running' | 'completed' | 'failed';
   kpis?: any;
   valid?: boolean;
@@ -21,6 +20,7 @@ export interface Session {
   output_tokens?: number;
   rating?: any;
   parent_session_id?: string; // For replay sessions
+  file_hash?: string; // For detecting file changes
 }
 
 export interface Event {
@@ -111,20 +111,6 @@ export async function getEvents(sessionId: string): Promise<Event[]> {
   return data || [];
 }
 
-export async function getSessionsByFile(fileHash: string): Promise<Session[]> {
-  const { data, error } = await supabase
-    .from('logs_sessions')
-    .select('*')
-    .eq('file_hash', fileHash)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching sessions by file:', error);
-    return [];
-  }
-  return data || [];
-}
-
 export async function getSessionStats() {
   const { data, error } = await supabase
     .from('logs_sessions')
@@ -173,15 +159,4 @@ export async function getSessionStats() {
     reproducibilityRate,
     avgRating,
   };
-}
-
-export function hashFile(content: string): string {
-  // Simple hash function for demo purposes
-  let hash = 0;
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(36);
 }

@@ -3,39 +3,32 @@ import { getSession, getEvents } from '@/app/services/supabase-service';
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    // Get the ID from params
+    const params = await context.params;
+    const sessionId = params.id;
     
-    // Get session details
-    const session = await getSession(id);
+    // Get session from database
+    const session = await getSession(sessionId);
+    
     if (!session) {
-      return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Session not found', sessionId },
+        { status: 404 }
+      );
     }
     
-    // Get events for this session
-    const events = await getEvents(id);
+    // Get events from database
+    const events = await getEvents(sessionId);
     
-    // Transform events to match TraceEvent interface
-    const transformedEvents = events.map(event => ({
-      sessionId: event.session_id,
-      eventId: event.event_id,
-      parentId: event.parent_id,
-      timestamp: event.timestamp,
-      type: event.type,
-      name: event.name,
-      input: event.input,
-      output: event.output,
-      metadata: event.metadata
-    }));
-    
+    // Return the data
     return NextResponse.json({
       session: {
         id: session.id,
         createdAt: session.created_at,
         fileName: session.file_name,
-        fileHash: session.file_hash,
         model: session.model,
         temperature: session.temperature,
         status: session.status,
@@ -48,10 +41,27 @@ export async function GET(
         rating: session.rating,
         parentSessionId: session.parent_session_id
       },
-      events: transformedEvents
+      events: events.map(e => ({
+        sessionId: e.session_id,
+        eventId: e.event_id,
+        parentId: e.parent_id,
+        timestamp: e.timestamp,
+        type: e.type,
+        name: e.name,
+        input: e.input,
+        output: e.output,
+        metadata: e.metadata
+      }))
     });
+    
   } catch (error) {
-    console.error('Error fetching session:', error);
-    return NextResponse.json({ error: 'Failed to fetch session' }, { status: 500 });
+    console.error('Error in /api/sessions/[id]:', error);
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
 }

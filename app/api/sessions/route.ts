@@ -10,7 +10,6 @@ export async function GET() {
       id: session.id,
       createdAt: session.created_at,
       fileName: session.file_name,
-      fileHash: session.file_hash,
       model: session.model,
       temperature: session.temperature,
       status: session.status,

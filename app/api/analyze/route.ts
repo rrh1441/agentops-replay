@@ -2,15 +2,14 @@ import { NextResponse } from 'next/server';
 import { parse } from 'csv-parse/sync';
 import { 
   callLLM, 
-  selectRandomModel, 
+  getAllModelKeys,
   calculateSessionRating,
   formatCost 
 } from '@/app/services/llm-service';
 import {
   createSession,
   updateSession,
-  createEvent,
-  hashFile
+  createEvent
 } from '@/app/services/supabase-service';
 
 const EXTRACTION_PROMPT = `Extract financial KPIs from this CSV data.
@@ -28,12 +27,9 @@ Data to analyze:
 {{DATA}}`;
 
 export async function POST(request: Request) {
-  let sessionId: string | null = null;
-  
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const modelOverride = formData.get('modelOverride') as string | null;
     
     if (!file) {
       return NextResponse.json(
@@ -43,24 +39,61 @@ export async function POST(request: Request) {
     }
     
     const content = await file.text();
-    const fileHash = hashFile(content);
     const records = parse(content, { columns: true }) as Record<string, unknown>[];
     
-    // Use override if provided (for demo scenarios), otherwise select random
-    const modelKey = modelOverride || selectRandomModel();
-    const modelConfig = modelKey.includes('mini') ? 'gpt-4o-mini' : 
-                       modelKey.includes('nondeterministic') ? 'gpt-3.5-turbo (temp=0.7)' : 
-                       'gpt-3.5-turbo (temp=0)';
+    // Get ALL models to run comparison
+    const allModels = getAllModelKeys();
+    
+    // Run analysis for each model in parallel
+    const analysisPromises = allModels.map(async (modelKey) => {
+      return runSingleAnalysis(file, records, modelKey);
+    });
+    
+    const allResults = await Promise.all(analysisPromises);
+    const successfulResults = allResults.filter(r => r.success);
+    
+    return NextResponse.json({ 
+      success: true,
+      message: `Analysis completed across ${allModels.length} models (${successfulResults.length} successful)`,
+      sessions: allResults,
+      comparison: {
+        models: allModels,
+        totalSessions: allResults.length,
+        successfulSessions: successfulResults.length,
+        avgCost: successfulResults.length > 0 ? 
+          (successfulResults.reduce((sum, r) => sum + (r.cost || 0), 0) / successfulResults.length).toFixed(4) : '0',
+        avgLatency: successfulResults.length > 0 ?
+          Math.round(successfulResults.reduce((sum, r) => sum + (r.latency || 0), 0) / successfulResults.length) : 0
+      }
+    });
+    
+  } catch (error) {
+    console.error('Multi-model analysis error:', error);
+    return NextResponse.json(
+      { error: 'Multi-model analysis failed', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
+async function runSingleAnalysis(
+  file: File, 
+  records: Record<string, unknown>[], 
+  modelKey: string
+) {
+  let sessionId: string | null = null;
+  
+  try {
+    const modelConfig = modelKey;
     const temperature = modelKey.includes('nondeterministic') ? 0.7 : 
-                       modelKey.includes('mini') ? 1 : 0;
+                       modelKey.includes('mini') && !modelKey.includes('gpt-5') ? 1 : 0;
     
     // Create session in Supabase
     const session = await createSession({
-      file_name: file.name,
-      file_hash: fileHash,
-      model: modelConfig,
-      temperature,
+      file_name: `[${modelKey}] ${file.name}`,
       status: 'running',
+      model: modelConfig,
+      temperature: temperature
     });
     
     sessionId = session.id;
@@ -122,7 +155,7 @@ export async function POST(request: Request) {
       if (!kpis.year_over_year_growth) kpis.year_over_year_growth = 'N/A';
       
     } catch (llmError) {
-      console.error('LLM call failed, using fallback:', llmError);
+      console.error(`LLM call failed for ${modelKey}, using fallback:`, llmError);
       // Fallback to calculated values from CSV
       let revenue = 0;
       let cogs = 0;
@@ -282,13 +315,15 @@ export async function POST(request: Request) {
           `Tokens: ${llmResponse.totalTokens}`,
           validationPassed ? 'Validation: Passed ✅' : 'Validation: Failed ❌'
         ],
-        filename: `${file.name.replace('.csv', '')}_analysis.json`
+        filename: `${file.name.replace('.csv', '')}_analysis_${modelKey}.json`
       }
     });
     
     // Update session with final results
     await updateSession(sessionId, {
       status: 'completed',
+      model: modelConfig,
+      temperature: temperature,
       kpis,
       valid: validationPassed,
       cost: llmResponse.cost,
@@ -298,18 +333,21 @@ export async function POST(request: Request) {
       rating
     });
     
-    return NextResponse.json({ 
+    return {
       sessionId,
       success: true,
       model: modelConfig,
       temperature,
-      cost: formatCost(llmResponse.cost),
+      cost: llmResponse.cost,
+      costFormatted: formatCost(llmResponse.cost),
       rating: rating.stars,
-      recommendation: rating.recommendation
-    });
+      recommendation: rating.recommendation,
+      latency: llmResponse.latency,
+      kpis
+    };
     
   } catch (error) {
-    console.error('Analysis error:', error);
+    console.error(`Analysis error for ${modelKey}:`, error);
     
     // Update session status if it was created
     if (sessionId) {
@@ -318,9 +356,11 @@ export async function POST(request: Request) {
       });
     }
     
-    return NextResponse.json(
-      { error: 'Analysis failed', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    return {
+      sessionId,
+      success: false,
+      model: modelKey,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
 }

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { formatCost } from '@/app/services/llm-service';
 
 interface SessionVariance {
-  fileHash: string;
   fileName: string;
   sessions: Array<{
     id: string;
@@ -39,19 +38,18 @@ export function VarianceDetection() {
       const response = await fetch('/api/sessions');
       const sessions = await response.json();
       
-      // Group by file hash
+      // Group by file name
       const groupedByFile = sessions.reduce((acc: any, session: any) => {
-        if (!session.fileHash) return acc;
+        if (!session.fileName) return acc;
         
-        if (!acc[session.fileHash]) {
-          acc[session.fileHash] = {
-            fileHash: session.fileHash,
+        if (!acc[session.fileName]) {
+          acc[session.fileName] = {
             fileName: session.fileName,
             sessions: []
           };
         }
         
-        acc[session.fileHash].sessions.push({
+        acc[session.fileName].sessions.push({
           id: session.id,
           model: session.model,
           temperature: session.temperature,
@@ -147,7 +145,7 @@ export function VarianceDetection() {
       </div>
 
       {variances.map((variance) => (
-        <div key={variance.fileHash} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div key={variance.fileName} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b">
             <h3 className="text-lg font-semibold text-gray-900">{variance.fileName}</h3>
             <p className="text-sm text-gray-500 mt-1">

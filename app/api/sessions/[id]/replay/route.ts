@@ -10,10 +10,14 @@ import { callLLM, calculateSessionRating } from '@/app/services/llm-service';
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    // Next.js 15 requires awaiting params
+    const params = await context.params;
+    const id = params.id;
+    
+    console.log('Replaying session:', id);
     
     // Get original session
     const originalSession = await getSession(id);
@@ -30,16 +34,15 @@ export async function POST(
     // Create new replay session
     const replaySession = await createSession({
       file_name: `REPLAY: ${originalSession.file_name}`,
-      file_hash: originalSession.file_hash,
-      model: originalSession.model,
-      temperature: originalSession.temperature,
+      model: originalSession.model || 'gpt-3.5-turbo',
+      temperature: originalSession.temperature || 0,
       status: 'running',
       parent_session_id: id
     });
     
     // If temperature is 0 (deterministic), we can reuse outputs
     // If temperature > 0, we should actually re-run for different results
-    const isDeterministic = originalSession.temperature === 0;
+    const isDeterministic = originalSession.temperature === 0 || originalSession.temperature === null;
     
     let finalKpis = originalSession.kpis;
     let finalCost = originalSession.cost;
@@ -55,7 +58,7 @@ export async function POST(
         const prompt = event.input?.prompt || 'Extract financial KPIs from this data';
         
         try {
-          const modelKey = originalSession.model.includes('gpt-4') ? 'gpt-4o-mini' :
+          const modelKey = originalSession.model?.includes('gpt-4') ? 'gpt-4o-mini' :
                           originalSession.temperature === 0.7 ? 'gpt-3.5-turbo-nondeterministic' :
                           'gpt-3.5-turbo';
           
@@ -139,7 +142,7 @@ export async function POST(
     const rating = calculateSessionRating(
       finalLatency || 1000,
       finalCost || 0.001,
-      originalSession.temperature,
+      originalSession.temperature || 0,
       finalValid || false
     );
     
@@ -163,10 +166,10 @@ export async function POST(
     });
     
   } catch (error) {
-    console.error('Error replaying session:', error);
+    console.error('Error in POST /api/sessions/[id]/replay:', error);
     return NextResponse.json({ 
       error: 'Failed to replay session',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   }
 }

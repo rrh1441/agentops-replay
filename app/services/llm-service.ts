@@ -35,12 +35,19 @@ export const MODELS: Record<string, ModelConfig> = {
     costPer1kInput: 0.0005,
     costPer1kOutput: 0.0015,
   },
-  'gpt-4o-mini': { // Using gpt-4o-mini instead of gpt-5-mini
+  'gpt-4o-mini': {
     model: 'gpt-4o-mini',
     temperature: 1,
     maxTokens: 4096,
     costPer1kInput: 0.00015,
     costPer1kOutput: 0.0006,
+  },
+  'gpt-5-mini': {
+    model: 'gpt-5-mini',
+    temperature: 0,
+    maxTokens: 4096,
+    costPer1kInput: 0.00025,  // $0.25 per 1M tokens
+    costPer1kOutput: 0.002,   // $2.00 per 1M tokens
   },
 };
 
@@ -175,11 +182,13 @@ export async function callLLM(
   }
 }
 
+export function getAllModelKeys(): string[] {
+  return Object.keys(MODELS);
+}
+
 export function selectRandomModel(): string {
-  const random = Math.random();
-  if (random < 0.5) return 'gpt-3.5-turbo'; // 50% chance
-  if (random < 0.8) return 'gpt-3.5-turbo-nondeterministic'; // 30% chance
-  return 'gpt-4o-mini'; // 20% chance
+  const models = getAllModelKeys();
+  return models[Math.floor(Math.random() * models.length)];
 }
 
 export function calculateSessionRating(
