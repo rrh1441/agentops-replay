@@ -136,38 +136,6 @@ export function MonitorAgent() {
           </div>
         </div>
       </div>
-
-
-      {/* Quick Actions */}
-      <div className="border-t pt-4">
-        <h3 className="font-semibold mb-3">Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm">
-            View Full Logs
-          </button>
-          <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm">
-            Download Report
-          </button>
-          <button className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition-colors text-sm">
-            Test New Model
-          </button>
-          <button className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm">
-            Configure Alerts
-          </button>
-        </div>
-      </div>
-
-      {/* Future Features Notice */}
-      <div className="mt-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-lg">
-        <div className="flex items-center gap-2 text-amber-800">
-          <span className="text-lg">🚧</span>
-          <span className="font-semibold">Production Monitoring (Coming Soon)</span>
-        </div>
-        <p className="text-amber-700 text-sm mt-1">
-          This section will provide real-time monitoring of your production agents once deployed. 
-          Currently showing simulated data for demonstration.
-        </p>
-      </div>
     </div>
   );
 }
