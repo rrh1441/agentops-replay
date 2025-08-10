@@ -55,6 +55,13 @@ export const MODELS: Record<string, ModelConfig> = {
     costPer1kInput: 0.00015,  // $0.15 per 1M tokens
     costPer1kOutput: 0.0006,  // $0.60 per 1M tokens
   },
+  'gpt-4o-mini-creative': {
+    model: 'gpt-4o-mini',
+    temperature: 0.7,         // Non-deterministic for comparison
+    maxTokens: 4096,
+    costPer1kInput: 0.00015,  // $0.15 per 1M tokens
+    costPer1kOutput: 0.0006,  // $0.60 per 1M tokens
+  },
   'o3': {
     model: 'o3',
     temperature: 0,

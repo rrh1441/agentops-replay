@@ -138,6 +138,7 @@ export function TestAgent() {
     if (model === 'gpt-4.1-mini') return 'GPT-4.1 Mini';
     if (model === 'gpt-4o') return 'GPT-4o';
     if (model === 'gpt-4o-mini') return 'GPT-4o Mini';
+    if (model === 'gpt-4o-mini-creative') return 'GPT-4o Mini (T=0.7)';
     if (model === 'o3') return 'O3';
     return model;
   };
@@ -147,6 +148,7 @@ export function TestAgent() {
     if (model === 'gpt-4.1') return 'bg-blue-100 text-blue-800 border-blue-200';
     if (model === 'gpt-4.1-mini') return 'bg-cyan-100 text-cyan-800 border-cyan-200';
     if (model === 'gpt-4o') return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    if (model === 'gpt-4o-mini-creative') return 'bg-orange-100 text-orange-800 border-orange-200';
     if (model === 'gpt-4o-mini') return 'bg-green-100 text-green-800 border-green-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
